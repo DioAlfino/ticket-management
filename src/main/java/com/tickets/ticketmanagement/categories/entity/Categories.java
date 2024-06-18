@@ -13,7 +13,6 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -32,12 +31,11 @@ public class Categories {
     @Column(name = "id")
     private Long id;
 
-    @NotBlank(message = "Name is required")
+    @NotNull
     @Size(max = 255, message = "Name must be less than 255 characters")
     @Column(name = "name")
     private String name;
 
-    @NotBlank(message = "Description is required")
     @Column(columnDefinition = "TEXT", name = "description")
     private String description;
 
@@ -55,19 +53,20 @@ public class Categories {
     private Instant deletedAt;
 
     @PrePersist
-    public void prePersist() {
+    protected void onCreate() {
         Instant now = Instant.now();
         this.createdAt = now;
         this.updatedAt = now;
     }
 
     @PreUpdate
-    public void preUpdate() {
+    protected void onUpdate() {
         this.updatedAt = Instant.now();
     }
 
     @PreRemove
-    public void preRemove() {
+    protected void onDelete() {
         this.deletedAt = Instant.now();
     }
 }
+

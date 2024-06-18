@@ -46,11 +46,12 @@ public class Events {
     private String name;
 
     @NotNull
-    @Column(columnDefinition = "TEXT", name = "location")
+    @Column(columnDefinition = "TEXT", name = "description")
     private String description;
 
     @NotNull
     @Size(max = 255)
+    @Column(name = "location")
     private String location;
 
     @NotNull
