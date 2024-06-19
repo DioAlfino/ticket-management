@@ -42,17 +42,13 @@ public class Events {
 
     @Size(max = 255)
     @NotNull
-    @Column(name ="name")
+    @Column(name ="event_name")
     private String name;
 
     @NotNull
-    @Column(columnDefinition = "TEXT", name = "description")
-    private String description;
-
-    @NotNull
-    @Size(max = 255)
-    @Column(name = "location")
-    private String location;
+    @Positive
+    @Column(name = "price", precision = 10)
+    private Double price;
 
     @NotNull
     @Column(name = "date")
@@ -63,9 +59,13 @@ public class Events {
     private LocalTime time;
 
     @NotNull
-    @Positive
-    @Column(name = "price", precision = 10)
-    private Double price;
+    @Size(max = 255)
+    @Column(name = "location")
+    private String location;
+
+    @NotNull
+    @Column(columnDefinition = "TEXT", name = "description")
+    private String description;
 
     @NotNull
     @Positive
@@ -74,8 +74,8 @@ public class Events {
 
     @Size(max = 50)
     @NotNull
-    @Column(name = "event_type")
-    private String eventType;
+    @Column(name = "is_free")
+    private Boolean isFree;
 
     @NotNull
     @JoinColumn(name = "organizer_id")

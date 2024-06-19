@@ -38,7 +38,7 @@ public class EventsRequestUpdateDto {
 
     @NotBlank(message = "Event type is required")
     @Size(max = 50, message = "Event type must be less than 50 characters")
-    private String eventType;
+    private Boolean isFree;
 
     @NotNull(message = "Organizer ID is required")
     @Positive(message = "Organizer ID must be positive")
