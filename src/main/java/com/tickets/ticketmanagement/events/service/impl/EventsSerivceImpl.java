@@ -1,5 +1,6 @@
 package com.tickets.ticketmanagement.events.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -101,6 +102,26 @@ public class EventsSerivceImpl implements EventsService {
     public Void deleteBy(Long id) {
         eventsRepository.deleteById(id);
         return null;
+    }
+
+    @Override
+    public List<Events> filterByDate(LocalDate starDate, LocalDate endDate) {
+        return eventsRepository.findByDateBetween(starDate, endDate);
+    }
+
+    @Override
+    public List<Events> filterByLocation(String location) {
+        return eventsRepository.findByLocation(location);
+    }
+
+    @Override
+    public List<Events> filterByCategory(Categories category) {
+        return eventsRepository.findByCageroiesId(category);
+    }
+
+    @Override
+    public List<Events> filterByIsFree(Boolean isFree) {
+        return eventsRepository.findByIsFree(isFree);
     }
 
    
