@@ -37,8 +37,6 @@ public class EventsSerivceImpl implements EventsService {
         events.setLocation(registerDto.getLocation());
         events.setDate(registerDto.getDate());
         events.setTime(registerDto.getTime());
-        events.setPrice(registerDto.getPrice());
-        events.setAvailableSeats(registerDto.getAvailableSeats());
         events.setIsFree(registerDto.getIsFree());
 
         User user = new User();
@@ -73,8 +71,6 @@ public class EventsSerivceImpl implements EventsService {
             events.setLocation(eventsRequestUpdateDto.getLocation());
             events.setDate(eventsRequestUpdateDto.getDate());
             events.setTime(eventsRequestUpdateDto.getTime());
-            events.setPrice(eventsRequestUpdateDto.getPrice());
-            events.setAvailableSeats(eventsRequestUpdateDto.getAvailableSeats());
             events.setIsFree(eventsRequestUpdateDto.getIsFree());
 
             Long organizerId = eventsRequestUpdateDto.getOrganizerId();

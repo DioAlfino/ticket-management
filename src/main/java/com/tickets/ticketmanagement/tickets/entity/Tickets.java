@@ -1,13 +1,10 @@
-package com.tickets.ticketmanagement.events.entity;
+package com.tickets.ticketmanagement.tickets.entity;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 import org.hibernate.annotations.ColumnDefault;
 
-import com.tickets.ticketmanagement.categories.entity.Categories;
-import com.tickets.ticketmanagement.users.entity.User;
+import com.tickets.ticketmanagement.events.entity.Events;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,58 +21,38 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "events")
-public class Events {
+@Table(name = "ticket_tiers")
+public class Tickets {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    Long id;
 
     @Size(max = 255)
     @NotNull
-    @Column(name ="event_name")
-    private String name;
+    @Column(name ="tier_name")
+    private String ticketName;
 
     @NotNull
-    @Column(name = "date")
-    private LocalDate date;
+    @Positive
+    @Column(name = "price", precision = 10)
+    private Double price;
+
+    @Positive
+    @NotNull
+    @Column(name ="available_seats")
+    private Integer availableSeats;
 
     @NotNull
-    @Column(name = "time")
-    private LocalTime time;
-
-    @NotNull
-    @Size(max = 255)
-    @Column(name = "location")
-    private String location;
-
-    @NotNull
-    @Column(columnDefinition = "TEXT", name = "description")
-    private String description;
-
-    @NotNull
-    @Column(name = "is_free")
-    private Boolean isFree;
-
-    @NotNull
-    @JoinColumn(name = "organizer_id")
+    @JoinColumn(name = "event_id")
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    private User organizerId;
+    private Events eventId;
 
-    @NotNull
-    @JoinColumn(name = "category_id")
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    private Categories categoriesId;
-    
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", updatable = false)

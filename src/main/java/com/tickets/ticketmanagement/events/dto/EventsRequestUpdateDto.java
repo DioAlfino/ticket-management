@@ -32,10 +32,6 @@ public class EventsRequestUpdateDto {
     @Positive(message = "Price must be positive")
     private Double price;
 
-    @NotNull(message = "Available seats are required")
-    @Positive(message = "Available seats must be positive")
-    private Integer availableSeats;
-
     @NotBlank(message = "Event type is required")
     @Size(max = 50, message = "Event type must be less than 50 characters")
     private Boolean isFree;
