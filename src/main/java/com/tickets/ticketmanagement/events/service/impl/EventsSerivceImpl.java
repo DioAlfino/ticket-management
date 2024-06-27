@@ -2,10 +2,14 @@ package com.tickets.ticketmanagement.events.service.impl;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.tickets.ticketmanagement.categories.entity.Categories;
 import com.tickets.ticketmanagement.categories.repository.CategoriesRepository;
 import com.tickets.ticketmanagement.events.dto.EventsRequestRegisterDto;
@@ -22,11 +26,13 @@ public class EventsSerivceImpl implements EventsService {
     private final EventsRepository eventsRepository;
     private final UserRepository userRepository;
     private final CategoriesRepository categoriesRepository;
+    private final Cloudinary cloudinary; 
 
-    public EventsSerivceImpl(EventsRepository eventsRepository, UserRepository userRepository, CategoriesRepository categoriesRepository) {
+    public EventsSerivceImpl(EventsRepository eventsRepository, UserRepository userRepository, CategoriesRepository categoriesRepository, com.cloudinary.Cloudinary cloudinary) {
         this.eventsRepository = eventsRepository;
         this.userRepository = userRepository;
         this.categoriesRepository = categoriesRepository;
+        this.cloudinary = cloudinary;
 
     }
 
@@ -47,7 +53,18 @@ public class EventsSerivceImpl implements EventsService {
         categories.setId(registerDto.getCategoryId());
 
         events.setOrganizerId(user);
-        events.setCategoriesId(categories);
+        events.setCategoryId(categories);
+
+        MultipartFile photo = registerDto.getPhoto();
+        if (photo != null && !photo.isEmpty()) {
+            try {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> uploadResult = cloudinary.uploader().upload(photo.getBytes(), ObjectUtils.emptyMap());
+                events.setPhotoUrl((String) uploadResult.get("url"));
+            } catch (Exception e) {
+                throw new RuntimeException("Photo upload failed", e);
+            }
+        }
 
         return eventsRepository.save(events);
     }
@@ -85,7 +102,7 @@ public class EventsSerivceImpl implements EventsService {
             if (categoriesId != null) {
                 Categories categories = categoriesRepository.findById(categoriesId)
                 .orElseThrow(() -> new RuntimeException("category not found with id " + categoriesId));
-                events.setCategoriesId(categories);
+                events.setCategoryId(categories);
             }
             return eventsRepository.save(events);
         } else {
@@ -105,25 +122,8 @@ public class EventsSerivceImpl implements EventsService {
     }
 
     @Override
-    public List<Events> filterByDate(LocalDate starDate, LocalDate endDate) {
-        return eventsRepository.findByDateBetween(starDate, endDate);
+    public List<Events> filterEvents(LocalDate startDate, LocalDate endDate, String location, Long categoryId,
+        Boolean isFree) {
+            return eventsRepository.filterEvents(startDate, endDate, location, categoryId, isFree);
     }
-
-    @Override
-    public List<Events> filterByLocation(String location) {
-        return eventsRepository.findByLocation(location);
-    }
-
-    @Override
-    public List<Events> filterByCategory(Categories category) {
-        return eventsRepository.findByCageroiesId(category);
-    }
-
-    @Override
-    public List<Events> filterByIsFree(Boolean isFree) {
-        return eventsRepository.findByIsFree(isFree);
-    }
-
-   
-
 }

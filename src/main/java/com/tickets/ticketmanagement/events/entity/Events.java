@@ -73,7 +73,10 @@ public class Events {
     @NotNull
     @JoinColumn(name = "category_id")
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    private Categories categoriesId;
+    private Categories categoryId;
+
+    @Column(name = "photo_url")
+    private String photoUrl;
     
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")

@@ -19,4 +19,6 @@ public class RegisterRequestDto {
 
     @NotNull(message = "role is required")
     private Long role;
+
+    private String referralCode; 
 }

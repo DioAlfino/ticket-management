@@ -9,5 +9,6 @@ import com.tickets.ticketmanagement.users.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
+    Optional<User> findByReferralCode(String referralCode);
 }
     

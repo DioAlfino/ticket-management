@@ -26,7 +26,7 @@ public class RolesEntity {
 
     @Size(max = 255)
     @NotNull
-    @Column(name ="name", nullable = false)
+    @Column(name ="name_roles", nullable = false)
     private String name;
 
 }

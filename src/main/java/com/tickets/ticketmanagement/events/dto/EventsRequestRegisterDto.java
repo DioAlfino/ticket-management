@@ -3,6 +3,8 @@ package com.tickets.ticketmanagement.events.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -39,4 +41,7 @@ public class EventsRequestRegisterDto {
     @NotNull(message = "Category ID is required")
     @Positive(message = "Category ID must be positive")
     private Long categoryId;
+
+    @NotNull
+    private MultipartFile photo;
 }

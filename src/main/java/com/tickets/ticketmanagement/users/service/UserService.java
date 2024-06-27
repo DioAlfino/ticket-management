@@ -10,6 +10,7 @@ public interface UserService {
 
     User register (RegisterRequestDto user);
     User findByEmail(String email);
+    User findByRefferalCode(String refferalCode);
     User findById(Long id);
     List<User> findAllUser();
     Void deleteBy(Long id);

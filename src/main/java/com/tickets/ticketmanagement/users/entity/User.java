@@ -1,5 +1,6 @@
 package com.tickets.ticketmanagement.users.entity;
 
+import java.security.SecureRandom;
 import java.time.Instant;
 
 
@@ -70,10 +71,15 @@ public class User {
 
     private Instant deleted_at;
 
+    @Size(max = 10)
+    @Column(name = "referral_code", unique = true)
+    private String referralCode;
+
     @PrePersist
     public void prePersist() {
         this.created_at = Instant.now();
         this.updated_at = Instant.now();
+        this.referralCode = generateReferralCode();
     }
 
     @PreUpdate
@@ -84,5 +90,16 @@ public class User {
     @PreRemove
     public void preRemove() {
         this.deleted_at = Instant.now();
+    }
+
+    private String generateReferralCode() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder referralCode = new StringBuilder();
+
+        for (int i = 0; i < 8; i++) {
+            referralCode.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return referralCode.toString();
     }
 }

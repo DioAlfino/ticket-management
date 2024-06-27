@@ -79,5 +79,11 @@ public class UserServiceImpl implements UserService {
         } else {
             throw new RuntimeException("User not found with id " + id);
         }
-    }  
+    }
+
+    @Override
+    public User findByRefferalCode(String refferalCode) {
+        return userRepository.findByEmail(refferalCode).orElse(null);
+    }
+
 }
