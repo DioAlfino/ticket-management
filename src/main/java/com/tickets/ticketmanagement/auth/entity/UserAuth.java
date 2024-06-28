@@ -1,30 +1,35 @@
 package com.tickets.ticketmanagement.auth.entity;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.tickets.ticketmanagement.users.entity.User;
 
-public class UserAuth extends User implements UserDetails {
+import lombok.Data;
+
+
+@Data
+public class UserAuth implements UserDetails {
+
+    private String email;
+    private String password;
+    private List<String> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        ArrayList<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(() -> "ROLE_USER");
-        return authorities; 
-    }
-
-    @Override
-    public String getUsername() {
-        return this.getEmail();
+        return List.of();
     }
 
     @Override
     public String getPassword() {
-        return this.getPassword();
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
     }
 
 }

@@ -15,11 +15,11 @@ import com.tickets.ticketmanagement.tickets.service.TicketService;
 public class TicketServiceImpl implements TicketService {
 
     private final TicketRepository ticketRepository;
-    private final EventsRepository eventsRepository;
+    // private final EventsRepository eventsRepository;
 
     public TicketServiceImpl(TicketRepository ticketRepository, EventsRepository eventsRepository) {
         this.ticketRepository = ticketRepository;
-        this.eventsRepository = eventsRepository;
+        // this.eventsRepository = eventsRepository;
     }
 
     @Override

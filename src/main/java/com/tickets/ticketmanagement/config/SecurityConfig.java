@@ -5,9 +5,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,8 +27,8 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.tickets.ticketmanagement.auth.service.impl.UserDetailsServiceImpl;
 
 @Configuration
-@EnableWebSecurity
-@EnableMethodSecurity
+// @EnableWebSecurity
+// @EnableMethodSecurity
 public class SecurityConfig {
     private final RsaConfig rsaConfig;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
@@ -54,15 +53,17 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
-        return http.csrf(AbstractHttpConfigurer::disable)
+       return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> {
-                    // req.requestMatchers("/api/v1/auth/**").permitAll();
-                    // req.requestMatchers("/api/v1/user/register").permitAll();
-                    req.anyRequest().permitAll();
+                    req.requestMatchers("/api/v1/auth/**").permitAll();
+                    req.requestMatchers("/api/v1/user/register").permitAll();
+                    req.anyRequest().authenticated();
                 })
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfogurer -> jwtConfogurer.decoder(jwtDecoder())))
+                .sessionManagement(session ->  session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())))
+                .userDetailsService(userDetailsServiceImpl)
+                .httpBasic(Customizer.withDefaults())
                 .build();
     }
 
@@ -71,12 +72,10 @@ public class SecurityConfig {
         return NimbusJwtDecoder.withPublicKey(rsaConfig.publicKey()).build();
     }
 
-    @Bean 
+    @Bean
     JwtEncoder jwtEncoder() {
-        JWK jwk = new RSAKey.Builder(rsaConfig.publicKey())
-                .privateKey(rsaConfig.privateKey())
-                .build();
-        JWKSource <SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+        JWK jwk = new RSAKey.Builder(rsaConfig.publicKey()).privateKey(rsaConfig.privateKey()).build();
+        JWKSource <SecurityContext>jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwks);
-    }
+    } 
 }

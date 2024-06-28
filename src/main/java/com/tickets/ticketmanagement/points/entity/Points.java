@@ -28,7 +28,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "points")
+@Table(name = "point")
 public class Points {
 
     @Id
@@ -40,7 +40,7 @@ public class Points {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private User userId;
 
-    @Column(name = "points_balance", nullable = false, columnDefinition = "INT DEFAULT 0")
+    @Column(name = "point_balance", nullable = false, columnDefinition = "INT DEFAULT 0")
     private int pointsBalance;
 
     @Column(name = "expiration_date")
