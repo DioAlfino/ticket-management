@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +21,7 @@ import com.tickets.ticketmanagement.events.repository.EventsRepository;
 import com.tickets.ticketmanagement.events.service.EventsService;
 import com.tickets.ticketmanagement.users.entity.User;
 import com.tickets.ticketmanagement.users.repository.UserRepository;
+import com.tickets.ticketmanagement.users.service.UserService;
 
 @Service
 public class EventsSerivceImpl implements EventsService {
@@ -27,11 +30,13 @@ public class EventsSerivceImpl implements EventsService {
     private final UserRepository userRepository;
     private final CategoriesRepository categoriesRepository;
     private final Cloudinary cloudinary; 
+    private UserService userService;
 
-    public EventsSerivceImpl(EventsRepository eventsRepository, UserRepository userRepository, CategoriesRepository categoriesRepository, com.cloudinary.Cloudinary cloudinary) {
+    public EventsSerivceImpl(EventsRepository eventsRepository, UserRepository userRepository, CategoriesRepository categoriesRepository, com.cloudinary.Cloudinary cloudinary, UserService userService) {
         this.eventsRepository = eventsRepository;
         this.userRepository = userRepository;
         this.categoriesRepository = categoriesRepository;
+        this.userService = userService;
         this.cloudinary = cloudinary;
 
     }
@@ -46,13 +51,17 @@ public class EventsSerivceImpl implements EventsService {
         events.setTime(registerDto.getTime());
         events.setIsFree(registerDto.getIsFree());
 
-        User user = new User();
-        user.setId(registerDto.getOrganizerId());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        User currentUser = userService.findByEmail(currentUsername);
+        events.setOrganizerId(currentUser);
+
+        // User user = new User();
+        // user.setId(registerDto.getOrganizerId());
 
         Categories categories = new Categories();
         categories.setId(registerDto.getCategoryId());
-
-        events.setOrganizerId(user);
         events.setCategoryId(categories);
 
         MultipartFile photo = registerDto.getPhoto();
