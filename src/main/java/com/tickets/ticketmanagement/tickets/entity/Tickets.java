@@ -51,7 +51,7 @@ public class Tickets {
     @NotNull
     @JoinColumn(name = "event_id")
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    private Events eventId;
+    private Events event;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")

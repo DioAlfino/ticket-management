@@ -19,6 +19,8 @@ import com.tickets.ticketmanagement.events.dto.EventsRequestUpdateDto;
 import com.tickets.ticketmanagement.events.entity.Events;
 import com.tickets.ticketmanagement.events.repository.EventsRepository;
 import com.tickets.ticketmanagement.events.service.EventsService;
+import com.tickets.ticketmanagement.tickets.entity.Tickets;
+import com.tickets.ticketmanagement.tickets.repository.TicketRepository;
 import com.tickets.ticketmanagement.users.entity.User;
 import com.tickets.ticketmanagement.users.repository.UserRepository;
 import com.tickets.ticketmanagement.users.service.UserService;
@@ -31,13 +33,15 @@ public class EventsSerivceImpl implements EventsService {
     private final CategoriesRepository categoriesRepository;
     private final Cloudinary cloudinary; 
     private UserService userService;
+    private final TicketRepository ticketRepository;
 
-    public EventsSerivceImpl(EventsRepository eventsRepository, UserRepository userRepository, CategoriesRepository categoriesRepository, com.cloudinary.Cloudinary cloudinary, UserService userService) {
+    public EventsSerivceImpl(EventsRepository eventsRepository, UserRepository userRepository, CategoriesRepository categoriesRepository, com.cloudinary.Cloudinary cloudinary, UserService userService, TicketRepository ticketRepository) {
         this.eventsRepository = eventsRepository;
         this.userRepository = userRepository;
         this.categoriesRepository = categoriesRepository;
         this.userService = userService;
         this.cloudinary = cloudinary;
+        this.ticketRepository = ticketRepository;
 
     }
 
@@ -134,5 +138,10 @@ public class EventsSerivceImpl implements EventsService {
     public List<Events> filterEvents(LocalDate startDate, LocalDate endDate, String location, Long categoryId,
         Boolean isFree) {
             return eventsRepository.filterEvents(startDate, endDate, location, categoryId, isFree);
+    }
+
+    @Override
+    public List<Tickets> findTicketsByEventId(Long eventId) {
+        return ticketRepository.allTicketTier(eventId);
     }
 }

@@ -32,7 +32,7 @@ public class TicketServiceImpl implements TicketService {
         Events events = new Events();
         events.setId(ticketRequestDto.getEventId());
 
-        tickets.setEventId(events);
+        tickets.setEvent(events);
         return ticketRepository.save(tickets);
     }
 
@@ -64,6 +64,11 @@ public class TicketServiceImpl implements TicketService {
     public Void deleteBy(Long id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'deleteBy'");
+    }
+
+    @Override
+    public List<Tickets> findByEventId(Long eventId) {
+       return ticketRepository.allTicketTier(eventId);
     }
 
 }

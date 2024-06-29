@@ -12,5 +12,6 @@ public interface TicketService {
     Tickets findById(Long id);
     Tickets updateTicket(Long id, TicketRequestDto ticketRequestDto);
     List<Tickets> findAllEvents();
+    List<Tickets> findByEventId(Long id);
     Void deleteBy(Long id);
 }

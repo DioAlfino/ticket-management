@@ -22,6 +22,7 @@ import com.tickets.ticketmanagement.events.dto.EventsRequestUpdateDto;
 import com.tickets.ticketmanagement.events.entity.Events;
 import com.tickets.ticketmanagement.events.service.EventsService;
 import com.tickets.ticketmanagement.response.Response;
+import com.tickets.ticketmanagement.tickets.entity.Tickets;
 
 @RestController
 @RequestMapping("/api/v1/events")
@@ -91,5 +92,11 @@ public class EventsContoller {
     ) {
         List<Events> events = eventsService.filterEvents(starDate, endDate, location, categoryId, isFree);
         return Response.success("events fatced successfully", events);
+    }
+
+    @GetMapping("/ticket/{id}")
+    public ResponseEntity<List<Tickets>> getTicketTiers(@PathVariable("id") Long id) {
+        List<Tickets> ticketTiers = eventsService.findTicketsByEventId(id);
+        return ResponseEntity.ok(ticketTiers);
     }
 }

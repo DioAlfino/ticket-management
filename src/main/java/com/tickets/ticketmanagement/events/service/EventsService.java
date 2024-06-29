@@ -6,6 +6,7 @@ import java.util.List;
 import com.tickets.ticketmanagement.events.dto.EventsRequestRegisterDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestUpdateDto;
 import com.tickets.ticketmanagement.events.entity.Events;
+import com.tickets.ticketmanagement.tickets.entity.Tickets;
 
 public interface EventsService {
 
@@ -15,5 +16,6 @@ public interface EventsService {
     Events updateEvents(Long id, EventsRequestUpdateDto eventsRequestUpdateDto);
     List<Events> findAllEvents();
     List<Events> filterEvents(LocalDate startDate, LocalDate endDate, String location, Long categoryId, Boolean isFree);
+    List<Tickets> findTicketsByEventId(Long eventId);
     Void deleteBy(Long id);
 }
