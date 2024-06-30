@@ -6,11 +6,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.tickets.ticketmanagement.auth.helper.Claims;
 import com.tickets.ticketmanagement.exception.DataNotFoundException;
 import com.tickets.ticketmanagement.exception.DatabaseOperationException;
 import com.tickets.ticketmanagement.exception.UserAlreadyExistException;
 import com.tickets.ticketmanagement.roles.entity.RolesEntity;
-import com.tickets.ticketmanagement.roles.repository.RolesRepository;
 import com.tickets.ticketmanagement.users.dto.RegisterRequestDto;
 import com.tickets.ticketmanagement.users.dto.UserProfileUpdateDto;
 import com.tickets.ticketmanagement.users.entity.User;
@@ -22,12 +22,10 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RolesRepository rolesRepository;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RolesRepository rolesRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.rolesRepository = rolesRepository;
     }
 
     @Override
@@ -79,23 +77,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateProfile(Long id, UserProfileUpdateDto updateProfileDto) {
-        User user = userRepository.findById(id).orElseThrow(() -> new DataNotFoundException("User not found with id " + id));
+    public User updateProfile(UserProfileUpdateDto updateProfileDto) {
+        var claims = Claims.getClaimsFromJwt();
+        var email = (String) claims.get("sub");
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new DataNotFoundException("User not found with id " + email));
+        if (updateProfileDto.getName() != null) {
             user.setName(updateProfileDto.getName());
-            user.setEmail(updateProfileDto.getEmail());
-            user.setPassword(updateProfileDto.getPassword());
+        } 
+        user.setPassword(passwordEncoder.encode(updateProfileDto.getPassword()));
+        return userRepository.save(user);
 
-            Long roleId = updateProfileDto.getRoleId();
-            if (roleId != null) {
-                RolesEntity role = rolesRepository.findById(roleId)
-                .orElseThrow(() -> new DataNotFoundException("role not found with id " + roleId));
-                user.setRole(role);
-            }
-            try {
-                return userRepository.save(user);
-            } catch (DataIntegrityViolationException ex) {
-                throw new DatabaseOperationException("Failed to update user profile due to database error.", ex);
-            }
     }
 
     @Override

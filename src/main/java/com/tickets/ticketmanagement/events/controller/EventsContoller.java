@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,8 +38,8 @@ public class EventsContoller {
         return Response.success("user registered successfully", eventsService.createEvents(eventsRequestRegisterDto));
     }
 
-     @PutMapping("/{id}/event")
-    public ResponseEntity<Events> updateEvent(@PathVariable Long id, @RequestBody EventsRequestUpdateDto eventsRequestRegisterDto) {
+     @PutMapping("/{id}")
+    public ResponseEntity<Events> updateEvent(@PathVariable Long id, @ModelAttribute EventsRequestUpdateDto eventsRequestRegisterDto) {
         try {
             Events updateEvents = eventsService.updateEvents(id, eventsRequestRegisterDto);
             return ResponseEntity.ok(updateEvents);

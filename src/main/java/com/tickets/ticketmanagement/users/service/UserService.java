@@ -15,6 +15,6 @@ public interface UserService {
     List<User> findAllUser();
     Void deleteBy(Long id);
     
-    User updateProfile(Long id, UserProfileUpdateDto updateProfileDto);
+    User updateProfile(UserProfileUpdateDto updateProfileDto);
     
 }

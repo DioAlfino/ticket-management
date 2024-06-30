@@ -41,10 +41,10 @@ public class UserController {
         return ResponseEntity.ok(Response.success("User registered successfully", userId));
     }
 
-    @PutMapping("/{id}/profile")
-    public ResponseEntity<User> updateProfile(@PathVariable Long id, @RequestBody UserProfileUpdateDto userProfileUpdateDto) {
+    @PutMapping("/profile")
+    public ResponseEntity<User> updateProfile(@RequestBody UserProfileUpdateDto userProfileUpdateDto) {
         try {
-            User updateUser = userService.updateProfile(id, userProfileUpdateDto);
+            User updateUser = userService.updateProfile(userProfileUpdateDto);
             return ResponseEntity.ok(updateUser);
         } catch(RuntimeException e ) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
