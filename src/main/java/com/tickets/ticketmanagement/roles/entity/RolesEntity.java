@@ -29,4 +29,6 @@ public class RolesEntity {
     @Column(name ="name_roles", nullable = false)
     private String name;
 
+    
+
 }

@@ -75,4 +75,11 @@ public class Points {
     public void preRemove() {
         this.deletedAt = Instant.now();
     }
+
+    public void deductPoints(int points) {
+        this.pointsBalance -= points;
+        if (this.pointsBalance < 0) {
+            this.pointsBalance = 0;
+        }
+    }
 }

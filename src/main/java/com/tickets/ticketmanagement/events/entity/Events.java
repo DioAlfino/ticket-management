@@ -1,14 +1,15 @@
 package com.tickets.ticketmanagement.events.entity;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.List;
 
 import org.hibernate.annotations.ColumnDefault;
 
 import com.tickets.ticketmanagement.categories.entity.Categories;
+import com.tickets.ticketmanagement.tickets.entity.Tickets;
 import com.tickets.ticketmanagement.users.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,6 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
@@ -46,11 +48,7 @@ public class Events {
 
     @NotNull
     @Column(name = "date")
-    private LocalDate date;
-
-    @NotNull
-    @Column(name = "time")
-    private LocalTime time;
+    private Instant date;
 
     @NotNull
     @Size(max = 255)
@@ -77,6 +75,9 @@ public class Events {
 
     @Column(name = "photo_url")
     private String photoUrl;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Tickets> tickets;
     
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")

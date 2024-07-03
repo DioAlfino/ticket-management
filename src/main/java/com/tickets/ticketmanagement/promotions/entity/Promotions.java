@@ -1,4 +1,4 @@
-package com.tickets.ticketmanagement.tickets.entity;
+package com.tickets.ticketmanagement.promotions.entity;
 
 import java.time.Instant;
 
@@ -17,41 +17,33 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "ticket_tiers")
-public class Tickets {
+public class Promotions {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
+    @NotNull
     @Size(max = 255)
-    @NotNull
-    @Column(name ="tier_name")
-    private String tierName;
-
-    @NotNull
-    @Positive
-    @Column(name = "price", precision = 10)
-    private Double price;
-
-    @Positive
-    @NotNull
-    @Column(name ="available_seats")
-    private Integer availableSeats;
+    @Column(name = "location")
+    private String name;
 
     @NotNull
     @JoinColumn(name = "event_id")
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    private Events event;
+    private Events eventId;
+
+    @Column(name = "discount", nullable = false)
+    private Double discount;
+
+    @Column(name = "max_user", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer maxUser;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")

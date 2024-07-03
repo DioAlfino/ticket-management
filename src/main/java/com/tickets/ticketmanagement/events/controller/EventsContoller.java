@@ -12,16 +12,19 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tickets.ticketmanagement.events.dto.EventsRequestRegisterDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestUpdateDto;
+import com.tickets.ticketmanagement.events.dto.EventsResponseDto;
 import com.tickets.ticketmanagement.events.entity.Events;
 import com.tickets.ticketmanagement.events.service.EventsService;
 import com.tickets.ticketmanagement.response.Response;
 import com.tickets.ticketmanagement.tickets.entity.Tickets;
+
 
 @RestController
 @RequestMapping("/api/v1/events")
@@ -34,8 +37,9 @@ public class EventsContoller {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createEvent(@ModelAttribute EventsRequestRegisterDto eventsRequestRegisterDto) {
-        return Response.success("user registered successfully", eventsService.createEvents(eventsRequestRegisterDto));
+    public ResponseEntity<?> createEvent(@RequestBody EventsRequestRegisterDto eventsRequestRegisterDto) {
+        EventsResponseDto createdEvent = eventsService.createEvents(eventsRequestRegisterDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdEvent);
     }
 
      @PutMapping("/{id}")

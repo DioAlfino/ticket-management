@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tickets.ticketmanagement.auth.helper.Claims;
+import com.tickets.ticketmanagement.points.dto.PointsHistoryResponseDto;
 import com.tickets.ticketmanagement.points.entity.Points;
 import com.tickets.ticketmanagement.points.service.PointsService;
 
@@ -36,4 +38,11 @@ public class PointsController {
     public void deletePoints(@PathVariable Long id) {
         pointsService.deletePoints(id);
     }
-}
+
+    @GetMapping("/point")
+    public PointsHistoryResponseDto getPoints() {
+        var claims = Claims.getClaimsFromJwt();
+        var email = (String) claims.get("sub");
+        return pointsService.getUsertTotalPoint(email); 
+    }
+ }

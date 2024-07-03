@@ -3,6 +3,7 @@ package com.tickets.ticketmanagement.referrals.service.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tickets.ticketmanagement.exception.DataNotFoundException;
 import com.tickets.ticketmanagement.points.entity.Points;
 import com.tickets.ticketmanagement.points.repository.PointsRepository;
 import com.tickets.ticketmanagement.referrals.entity.Referrals;
@@ -28,7 +29,7 @@ public class ReferralServiceImpl implements ReferralService {
     @Transactional
     @Override
     public void handleNewRegistrationWithReferral(User newUser, String referralCode) {
-        User referringUser = userRepository.findByReferralCode(referralCode).orElseThrow(() -> new RuntimeException("referring user not found"));
+        User referringUser = userRepository.findByReferralCode(referralCode).orElseThrow(() -> new DataNotFoundException("referring user not found"));
         
         Referrals discount = new Referrals();
         discount.setUser(newUser);
@@ -36,9 +37,14 @@ public class ReferralServiceImpl implements ReferralService {
         discount.setDiscountAmount(10.0);
         referralsRepository.save(discount);
 
-        Points points = pointsRepository.findByUserId(referringUser).orElse(new Points());
-        points.setUserId(referringUser);
-        points.setPointsBalance(points.getPointsBalance()+ 10000);
-        pointsRepository.save(points);
+        Points newPoint = new Points();
+        newPoint.setUserId(referringUser);
+        newPoint.setPointsBalance(10000);
+        pointsRepository.save(newPoint);
+
+        // Points points = pointsRepository.findByUserId(referringUser).orElse(new Points());
+        // points.setUserId(referringUser);
+        // points.setPointsBalance(points.getPointsBalance()+ 10000);
+        // pointsRepository.save(points);
     }
 }

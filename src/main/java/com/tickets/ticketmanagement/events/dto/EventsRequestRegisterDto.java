@@ -1,17 +1,21 @@
 package com.tickets.ticketmanagement.events.dto;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
+import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
+
+import com.tickets.ticketmanagement.tickets.dto.TicketRequestDto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class EventsRequestRegisterDto {
 
     @NotBlank(message = "Name is required")
@@ -25,23 +29,17 @@ public class EventsRequestRegisterDto {
     private String location;
 
     @NotNull(message = "Date is required")
-    private LocalDate date;
-
-    @NotNull(message = "Time is required")
-    private LocalTime time;
+    private  Instant date;;
 
     @NotBlank(message = "Event type is required")
     @Size(max = 50, message = "Event type must be less than 50 characters")
     private Boolean isFree;
 
-    // @NotNull(message = "Organizer ID is required")
-    // @Positive(message = "Organizer ID must be positive")
-    // private Long organizerId;
-
     @NotNull(message = "Category ID is required")
     @Positive(message = "Category ID must be positive")
     private Long categoryId;
 
-    @NotNull
-    private MultipartFile photo;
+    MultipartFile imageUrl;
+
+    private List<TicketRequestDto> tickets;
 }

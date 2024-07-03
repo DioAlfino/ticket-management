@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Void deleteBy(Long id) {
-        if (userRepository.existsById(id)) {
+        if (!userRepository.existsById(id)) {
             throw new DataNotFoundException("user with id " + id + " not found");
         }
         try {

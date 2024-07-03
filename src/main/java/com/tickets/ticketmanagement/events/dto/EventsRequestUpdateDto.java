@@ -1,7 +1,6 @@
 package com.tickets.ticketmanagement.events.dto;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.Instant;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,10 +24,7 @@ public class EventsRequestUpdateDto {
     private String location;
 
     @NotNull(message = "Date is required")
-    private LocalDate date;
-
-    @NotNull(message = "Time is required")
-    private LocalTime time;
+    private Instant date;
 
     @NotBlank(message = "Event type is required")
     @Size(max = 50, message = "Event type must be less than 50 characters")
