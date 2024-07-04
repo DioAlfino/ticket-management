@@ -2,6 +2,9 @@ package com.tickets.ticketmanagement.referrals.entity;
 
 
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+
 import com.tickets.ticketmanagement.users.entity.User;
 
 import jakarta.persistence.Column;
@@ -11,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,5 +42,17 @@ public class Referrals {
 
     @Column(name = "discountAmount", nullable = false)
     private double discountAmount;
+
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+    
+    @Column(name = "expired_at", nullable = false)
+    private Instant expiredAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = Instant.now();
+        expiredAt = createdAt.plus(90, ChronoUnit.DAYS);
+    }
 
 }

@@ -42,9 +42,5 @@ public class ReferralServiceImpl implements ReferralService {
         newPoint.setPointsBalance(10000);
         pointsRepository.save(newPoint);
 
-        // Points points = pointsRepository.findByUserId(referringUser).orElse(new Points());
-        // points.setUserId(referringUser);
-        // points.setPointsBalance(points.getPointsBalance()+ 10000);
-        // pointsRepository.save(points);
     }
 }

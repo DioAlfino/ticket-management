@@ -1,6 +1,6 @@
 package com.tickets.ticketmanagement.events.service.impl;
 
-import java.time.LocalDate;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +15,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tickets.ticketmanagement.categories.dto.CategoryResponseDto;
 import com.tickets.ticketmanagement.categories.entity.Categories;
 import com.tickets.ticketmanagement.categories.repository.CategoriesRepository;
+import com.tickets.ticketmanagement.events.dto.EventsAllDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestRegisterDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestUpdateDto;
 import com.tickets.ticketmanagement.events.dto.EventsResponseDto;
@@ -26,6 +29,9 @@ import com.tickets.ticketmanagement.events.repository.EventsRepository;
 import com.tickets.ticketmanagement.events.service.EventsService;
 import com.tickets.ticketmanagement.exception.DataNotFoundException;
 import com.tickets.ticketmanagement.exception.DatabaseOperationException;
+import com.tickets.ticketmanagement.promotions.dto.PromotionsDto;
+import com.tickets.ticketmanagement.promotions.entity.Promotions;
+import com.tickets.ticketmanagement.promotions.repository.PromotionsRepository;
 import com.tickets.ticketmanagement.tickets.dto.TicketDto;
 import com.tickets.ticketmanagement.tickets.entity.Tickets;
 import com.tickets.ticketmanagement.tickets.repository.TicketRepository;
@@ -38,16 +44,20 @@ public class EventsSerivceImpl implements EventsService {
 
     private final EventsRepository eventsRepository;
     private final Cloudinary cloudinary; 
-    private UserService userService;
+    private final UserService userService;
     private final TicketRepository ticketRepository;
     private final CategoriesRepository categoriesRepository;
+    private final PromotionsRepository promotionsRepository;
+    private  final ObjectMapper objectMapper;
 
-    public EventsSerivceImpl(EventsRepository eventsRepository, com.cloudinary.Cloudinary cloudinary, UserService userService, TicketRepository ticketRepository, CategoriesRepository categoriesRepository) {
+    public EventsSerivceImpl(EventsRepository eventsRepository, com.cloudinary.Cloudinary cloudinary, UserService userService, TicketRepository ticketRepository, CategoriesRepository categoriesRepository, PromotionsRepository promotionsRepository, ObjectMapper objectMapper) {
         this.eventsRepository = eventsRepository;
         this.userService = userService;
         this.cloudinary = cloudinary;
         this.ticketRepository = ticketRepository;
         this.categoriesRepository = categoriesRepository;
+        this.promotionsRepository = promotionsRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -77,22 +87,42 @@ public class EventsSerivceImpl implements EventsService {
                 .orElseThrow(() -> new DataNotFoundException("Category not found with id: " + registerDto.getCategoryId()));
         events.setCategoryId(category);
 
+        MultipartFile imageFile = registerDto.getImageUrl();
+        if (imageFile != null && !imageFile.isEmpty()) {
+            try {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> uploadResult = cloudinary.uploader().upload(imageFile.getBytes(), ObjectUtils.emptyMap());
+                events.setPhotoUrl((String) uploadResult.get("url"));
+            } catch (IOException e) {
+                throw new RuntimeException("Photo upload failed", e);
+            }
+        }
+
         // Menyimpan event ke dalam database
         Events savedEvents = eventsRepository.save(events);
 
         // Simpan tiket-tiket dengan menyesuaikan event ID yang telah disimpan
-        List<Tickets> tickets = registerDto.getTickets().stream().map(ticketDto -> {
-            Tickets ticket = new Tickets();
-            ticket.setTierName(ticketDto.getTierName());
-            ticket.setPrice(ticketDto.getPrice());
-            ticket.setAvailableSeats(ticketDto.getAvailableSeats());
-            ticket.setEvent(savedEvents); // Set event
-            return ticket;
-        }).collect(Collectors.toList());
+        List<Tickets> tickets;
+        try {
+            tickets = objectMapper.readValue(registerDto.getTickets(), new TypeReference<List<Tickets>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to parse ticktes JSOn", e);
+        }
 
-        // Simpan semua tiket ke dalam database
+        tickets.forEach(ticket -> ticket.setEvent(savedEvents));
         ticketRepository.saveAll(tickets);
         savedEvents.setTickets(tickets);
+
+        List<Promotions> promotionList;
+        try {
+            promotionList = objectMapper.readValue(registerDto.getPromotions(), new TypeReference<List<Promotions>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException("failed to parse promotiosn JSON", e);
+        }
+
+        promotionList.forEach(promotion -> promotion.setEventId(savedEvents));
+        promotionsRepository.saveAll(promotionList);
+        savedEvents.setPromotions(promotionList);
 
         // Konversi entitas yang disimpan ke dalam DTO respons
         EventsResponseDto responseDto = convertToDto(savedEvents);
@@ -127,6 +157,12 @@ public EventsResponseDto convertToDto(Events events) {
             ticketDtos = events.getTickets().stream().map(ticket -> new TicketDto(ticket.getTierName(), ticket.getPrice(), ticket.getAvailableSeats())).collect(Collectors.toList());
         }
         responseDto.setTickets(ticketDtos);
+
+        List<PromotionsDto> promotionsDtos = new ArrayList<>();
+        if (events.getPromotions() != null && !events.getPromotions().isEmpty()) {
+            promotionsDtos = events.getPromotions().stream().map(promotion -> new PromotionsDto(promotion.getName(), promotion.getDiscount(), promotion.getMaxUser())).collect(Collectors.toList());
+        } 
+        responseDto.setPromotions(promotionsDtos);
 
         return responseDto;
     }
@@ -179,8 +215,19 @@ public EventsResponseDto convertToDto(Events events) {
     }
 
     @Override
-    public List<Events> findAllEvents() {
-        return eventsRepository.findAll();
+    public List<EventsAllDto> findAllEvents() {
+        List<Events> events = eventsRepository.findAll();
+        return events.stream().map(this::EventConvertToDto).collect(Collectors.toList());
+    }
+
+    private EventsAllDto EventConvertToDto(Events events) {
+        EventsAllDto dto = new EventsAllDto();
+        dto.setId(events.getId());
+        dto.setName(events.getName());
+        dto.setLocation(events.getLocation());
+        dto.setDate(events.getDate());
+        dto.setImageUrl(events.getPhotoUrl());
+        return dto;
     }
 
     @Override
@@ -196,9 +243,18 @@ public EventsResponseDto convertToDto(Events events) {
     }
 
     @Override
-    public List<Events> filterEvents(LocalDate startDate, LocalDate endDate, String location, Long categoryId,
-        Boolean isFree) {
-            return eventsRepository.filterEvents(startDate, endDate, location, categoryId, isFree);
+    public List<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree) {
+        List<Events> events = eventsRepository.filterEvents(location, categoryId, isFree);
+        return events.stream().map(this::convertFilterEventsToDto).collect(Collectors.toList());
+    }
+
+    private EventsAllDto convertFilterEventsToDto (Events events) {
+        EventsAllDto dto = new EventsAllDto();
+        dto.setId(events.getId());
+        dto.setName(events.getName());
+        dto.setLocation(events.getLocation());
+        dto.setImageUrl(events.getPhotoUrl());
+        return dto;
     }
 
     @Override

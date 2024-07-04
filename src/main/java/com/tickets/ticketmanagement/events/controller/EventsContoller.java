@@ -1,9 +1,7 @@
 package com.tickets.ticketmanagement.events.controller;
 
-import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,11 +10,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tickets.ticketmanagement.events.dto.EventsAllDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestRegisterDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestUpdateDto;
 import com.tickets.ticketmanagement.events.dto.EventsResponseDto;
@@ -37,7 +35,7 @@ public class EventsContoller {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createEvent(@RequestBody EventsRequestRegisterDto eventsRequestRegisterDto) {
+    public ResponseEntity<?> createEvent(@ModelAttribute EventsRequestRegisterDto eventsRequestRegisterDto) {
         EventsResponseDto createdEvent = eventsService.createEvents(eventsRequestRegisterDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdEvent);
     }
@@ -70,9 +68,10 @@ public class EventsContoller {
             return Response.failed(HttpStatus.NOT_FOUND.value(), "events with id " + id + " not found");
     }
 
-    @GetMapping("/all")
+    @GetMapping("")
     public ResponseEntity<?> findAllEvent() {
-    return Response.success("all events fatched succcessfully", eventsService.findAllEvents());
+        List<EventsAllDto> eventsAllDtos = eventsService.findAllEvents();
+    return Response.success("all events fatched succcessfully", eventsAllDtos);
    } 
 
    @DeleteMapping("/{id}")
@@ -86,14 +85,12 @@ public class EventsContoller {
     }
 
     @GetMapping("/")
-    public ResponseEntity<Response<List<Events>>> filterEvents (
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate starDate,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+    public ResponseEntity<Response<List<EventsAllDto>>> filterEvents (
         @RequestParam(required = false) String location,
         @RequestParam(required = false) Long categoryId,
         @RequestParam(required = false) Boolean isFree 
     ) {
-        List<Events> events = eventsService.filterEvents(starDate, endDate, location, categoryId, isFree);
+        List<EventsAllDto> events = eventsService.filterEvents(location, categoryId, isFree);
         return Response.success("events fatced successfully", events);
     }
 

@@ -1,7 +1,7 @@
 package com.tickets.ticketmanagement.points.entity;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.temporal.ChronoUnit;
 
 import org.hibernate.annotations.ColumnDefault;
 
@@ -43,8 +43,8 @@ public class Points {
     @Column(name = "point_balance", nullable = false, columnDefinition = "INT DEFAULT 0")
     private int pointsBalance;
 
-    @Column(name = "expiration_date")
-    private Date expirationDate;
+    @Column(name = "expired_at")
+    private Instant expiredAt;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
@@ -58,12 +58,14 @@ public class Points {
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
+    
 
     @PrePersist
     public void prePersist() {
         Instant now = Instant.now();
         this.createdAt = now;
         this.updatedAt = now;
+        this.expiredAt = now.plus(90, ChronoUnit.DAYS);
     }
 
     @PreUpdate

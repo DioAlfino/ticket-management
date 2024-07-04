@@ -1,8 +1,8 @@
 package com.tickets.ticketmanagement.events.service;
 
-import java.time.LocalDate;
 import java.util.List;
 
+import com.tickets.ticketmanagement.events.dto.EventsAllDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestRegisterDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestUpdateDto;
 import com.tickets.ticketmanagement.events.dto.EventsResponseDto;
@@ -15,8 +15,8 @@ public interface EventsService {
     Events findByName(String name);
     Events findById(Long id);
     Events updateEvents(Long id, EventsRequestUpdateDto eventsRequestUpdateDto);
-    List<Events> findAllEvents();
-    List<Events> filterEvents(LocalDate startDate, LocalDate endDate, String location, Long categoryId, Boolean isFree);
+    List<EventsAllDto> findAllEvents();
+    List<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree);
     List<Tickets> findTicketsByEventId(Long eventId);
     Void deleteBy(Long id);
 }

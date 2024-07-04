@@ -53,6 +53,9 @@ public class Tickets {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private Events event;
 
+    @Column(name = "max_user", nullable = false)
+    private Integer maxUser;
+
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", updatable = false)

@@ -6,6 +6,7 @@ import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 
 import com.tickets.ticketmanagement.categories.entity.Categories;
+import com.tickets.ticketmanagement.promotions.entity.Promotions;
 import com.tickets.ticketmanagement.tickets.entity.Tickets;
 import com.tickets.ticketmanagement.users.entity.User;
 
@@ -78,6 +79,9 @@ public class Events {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tickets> tickets;
+
+    @OneToMany(mappedBy = "eventId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Promotions> promotions ;
     
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")

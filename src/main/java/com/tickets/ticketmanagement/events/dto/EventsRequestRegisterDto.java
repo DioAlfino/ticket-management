@@ -5,17 +5,16 @@ import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tickets.ticketmanagement.promotions.dto.PromotionsDto;
 import com.tickets.ticketmanagement.tickets.dto.TicketRequestDto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@Builder
 public class EventsRequestRegisterDto {
 
     @NotBlank(message = "Name is required")
@@ -39,7 +38,11 @@ public class EventsRequestRegisterDto {
     @Positive(message = "Category ID must be positive")
     private Long categoryId;
 
-    MultipartFile imageUrl;
+    private MultipartFile imageUrl;
 
-    private List<TicketRequestDto> tickets;
+    private String tickets;
+    private String promotions;
+
+    // private List<TicketRequestDto> tickets;
+    // private List<PromotionsDto> promotions ;
 }

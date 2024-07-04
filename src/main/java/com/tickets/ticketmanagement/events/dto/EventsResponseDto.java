@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.tickets.ticketmanagement.categories.dto.CategoryResponseDto;
+import com.tickets.ticketmanagement.promotions.dto.PromotionsDto;
 import com.tickets.ticketmanagement.tickets.dto.TicketDto;
 import com.tickets.ticketmanagement.users.dto.OrganizerDto;
 
@@ -20,4 +21,5 @@ public class EventsResponseDto {
     private OrganizerDto organizer;
     private CategoryResponseDto category;
     private List<TicketDto> tickets;
+    private List<PromotionsDto> promotions;
 }

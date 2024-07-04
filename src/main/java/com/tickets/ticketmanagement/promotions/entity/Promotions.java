@@ -15,14 +15,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "promotion_event")
 public class Promotions {
 
     @Id
@@ -31,7 +32,7 @@ public class Promotions {
 
     @NotNull
     @Size(max = 255)
-    @Column(name = "location")
+    @Column(name = "name")
     private String name;
 
     @NotNull
@@ -42,36 +43,29 @@ public class Promotions {
     @Column(name = "discount", nullable = false)
     private Double discount;
 
-    @Column(name = "max_user", nullable = false, columnDefinition = "INT DEFAULT 0")
+    @Column(name = "max_user", nullable = false)
     private Integer maxUser;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
-    @Column(name = "created_at", updatable = false)
-    private Instant createdAt;
+    @Column(name = "start_date", updatable = false)
+    private Instant startDate;
 
     @NotNull
-    @Column(name = "updated_at")
+    @Column(name = "end_date")
     @ColumnDefault("CURRENT_TIMESTAMP")
-    private Instant updatedAt;
-
-    @Column(name = "deleted_at")
-    private Instant deletedAt;
+    private Instant endDate;
 
     @PrePersist
     public void prePersist() {
         Instant now = Instant.now();
-        this.createdAt = now;
-        this.updatedAt = now;
+        this.startDate = now;
+        this.endDate = now;
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.updatedAt = Instant.now();
+        this.endDate = Instant.now();
     }
 
-    @PreRemove
-    public void preRemove() {
-        this.deletedAt = Instant.now();
-    }
 }
