@@ -14,9 +14,9 @@ public interface EventsService {
     EventsResponseDto createEvents(EventsRequestRegisterDto registerDto);
     Events findByName(String name);
     Events findById(Long id);
-    Events updateEvents(Long id, EventsRequestUpdateDto eventsRequestUpdateDto);
+    EventsResponseDto updateEvents(Long id, EventsRequestUpdateDto eventsRequestUpdateDto);
     List<EventsAllDto> findAllEvents();
     List<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree);
     List<Tickets> findTicketsByEventId(Long eventId);
-    Void deleteBy(Long id);
+    void deleteBy(Long id);
 }

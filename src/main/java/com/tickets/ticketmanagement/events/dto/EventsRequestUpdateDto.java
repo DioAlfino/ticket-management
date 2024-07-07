@@ -30,13 +30,13 @@ public class EventsRequestUpdateDto {
     @Size(max = 50, message = "Event type must be less than 50 characters")
     private Boolean isFree;
 
-    // @NotNull(message = "Organizer ID is required")
-    // @Positive(message = "Organizer ID must be positive")
-    // private Long organizerId;
-
-    private MultipartFile photo;
-
     @NotNull(message = "Category ID is required")
     @Positive(message = "Category ID must be positive")
     private Long categoryId;
+
+    private MultipartFile photo;
+
+    private String tickets;
+    private String promotions;
+
 }

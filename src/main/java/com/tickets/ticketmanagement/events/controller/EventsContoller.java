@@ -41,13 +41,9 @@ public class EventsContoller {
     }
 
      @PutMapping("/{id}")
-    public ResponseEntity<Events> updateEvent(@PathVariable Long id, @ModelAttribute EventsRequestUpdateDto eventsRequestRegisterDto) {
-        try {
-            Events updateEvents = eventsService.updateEvents(id, eventsRequestRegisterDto);
-            return ResponseEntity.ok(updateEvents);
-        } catch(RuntimeException e ) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+    public ResponseEntity<?> updateEvent(@PathVariable Long id, @ModelAttribute EventsRequestUpdateDto eventsRequestRegisterDto) {
+        EventsResponseDto updateEvent = eventsService.updateEvents(id, eventsRequestRegisterDto);
+        return ResponseEntity.status(HttpStatus.OK).body(updateEvent);
     }
 
     @GetMapping("/email/{email}")

@@ -1,12 +1,8 @@
 package com.tickets.ticketmanagement.events.dto;
 
 import java.time.Instant;
-import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
-
-import com.tickets.ticketmanagement.promotions.dto.PromotionsDto;
-import com.tickets.ticketmanagement.tickets.dto.TicketRequestDto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -42,7 +38,4 @@ public class EventsRequestRegisterDto {
 
     private String tickets;
     private String promotions;
-
-    // private List<TicketRequestDto> tickets;
-    // private List<PromotionsDto> promotions ;
 }

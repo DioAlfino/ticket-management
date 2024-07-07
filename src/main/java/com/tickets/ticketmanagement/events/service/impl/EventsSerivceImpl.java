@@ -2,11 +2,13 @@ package com.tickets.ticketmanagement.events.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -28,7 +30,6 @@ import com.tickets.ticketmanagement.events.entity.Events;
 import com.tickets.ticketmanagement.events.repository.EventsRepository;
 import com.tickets.ticketmanagement.events.service.EventsService;
 import com.tickets.ticketmanagement.exception.DataNotFoundException;
-import com.tickets.ticketmanagement.exception.DatabaseOperationException;
 import com.tickets.ticketmanagement.promotions.dto.PromotionsDto;
 import com.tickets.ticketmanagement.promotions.entity.Promotions;
 import com.tickets.ticketmanagement.promotions.repository.PromotionsRepository;
@@ -38,6 +39,7 @@ import com.tickets.ticketmanagement.tickets.repository.TicketRepository;
 import com.tickets.ticketmanagement.users.dto.OrganizerDto;
 import com.tickets.ticketmanagement.users.entity.User;
 import com.tickets.ticketmanagement.users.service.UserService;
+
 
 @Service
 public class EventsSerivceImpl implements EventsService {
@@ -178,40 +180,97 @@ public EventsResponseDto convertToDto(Events events) {
     }
 
     @Override
-    public Events updateEvents(Long id, EventsRequestUpdateDto eventsRequestUpdateDto) {
-        Events events = eventsRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Event not found with id " + id ));
+    @Transactional
+    public EventsResponseDto updateEvents(Long id, EventsRequestUpdateDto eventsRequestUpdateDto) {
+        Events existingEvent = eventsRepository.findById(id).orElseThrow(() -> new DataNotFoundException("Event not found with id " + id ));
         
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
         User currentUser = userService.findByEmail(currentUsername);
-        if (!events.getOrganizerId().equals(currentUser)) {
+        if (!existingEvent.getOrganizerId().equals(currentUser)) {
             throw new DataNotFoundException("you are not authorizerd to update this event");
         }
+        existingEvent.setName(eventsRequestUpdateDto.getName());
+        existingEvent.setDescription(eventsRequestUpdateDto.getDescription());
+        existingEvent.setLocation(eventsRequestUpdateDto.getLocation());
+        existingEvent.setDate(eventsRequestUpdateDto.getDate());
+        existingEvent.setIsFree(eventsRequestUpdateDto.getIsFree());
 
-        events.setName(eventsRequestUpdateDto.getName());
-        events.setDescription(eventsRequestUpdateDto.getDescription());
-        events.setLocation(eventsRequestUpdateDto.getLocation());
-        events.setDate(eventsRequestUpdateDto.getDate());
-        events.setIsFree(eventsRequestUpdateDto.getIsFree());
-
-        Categories categories = new Categories();
-        categories.setId(eventsRequestUpdateDto.getCategoryId());
-        events.setCategoryId(categories);
+        Categories category = categoriesRepository.findById(eventsRequestUpdateDto.getCategoryId())
+            .orElseThrow(() -> new DataNotFoundException("category not found with id " + eventsRequestUpdateDto.getCategoryId()));
+        existingEvent.setCategoryId(category);
 
         MultipartFile photo = eventsRequestUpdateDto.getPhoto();
         if (photo != null && !photo.isEmpty()) {
             try {
-                if (events.getPhotoUrl() != null) {
-                    cloudinary.uploader().destroy(getPublicIdFromUrl(events.getPhotoUrl()), ObjectUtils.emptyMap());
-                }
                 @SuppressWarnings("unchecked")
                 Map<String, Object> uploadResult = cloudinary.uploader().upload(photo.getBytes(), ObjectUtils.emptyMap());
-                events.setPhotoUrl((String) uploadResult.get("url"));
-            } catch (Exception e) {
-                throw new RuntimeException("Photo upload failed", e);
+                existingEvent.setPhotoUrl((String) uploadResult.get("url"));
+            } catch (IOException e) {
+                throw new RuntimeException("photo upload failed", e);
             }
         }
-         return eventsRepository.save(events);
+
+        List<Tickets> newTickets;
+        try {
+            newTickets = objectMapper.readValue(eventsRequestUpdateDto.getTickets(), new TypeReference<List<Tickets>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to parse tickets JSON", e);
+        }
+
+        Map<Long, Tickets> existingTicketsMap = existingEvent.getTickets().stream()
+            .collect(Collectors.toMap(Tickets::getId, Function.identity()));
+
+        Set<Long> updateTicketIds = new HashSet<>();
+
+        for (Tickets newTicket : newTickets) {
+        if (newTicket.getId() != null && existingTicketsMap.containsKey(newTicket.getId())) {
+            Tickets existingTicket = existingTicketsMap.get(newTicket.getId());
+            existingTicket.setTierName(newTicket.getTierName());
+            existingTicket.setPrice(newTicket.getPrice());
+            existingTicket.setAvailableSeats(newTicket.getAvailableSeats());
+            existingTicket.setMaxUser(newTicket.getMaxUser());
+            updateTicketIds.add(existingTicket.getId());
+        } else {
+            newTicket.setEvent(existingEvent);
+            existingEvent.getTickets().add(newTicket);
+            updateTicketIds.add(newTicket.getId());
+            }
+        }
+
+        existingEvent.getTickets().removeIf(ticket -> !updateTicketIds.contains(ticket.getId()));
+        
+        List<Promotions> newPromotions;
+        try {
+            newPromotions = objectMapper.readValue(eventsRequestUpdateDto.getPromotions(), new TypeReference<List<Promotions>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to parse promotions json", e);
+        }
+
+        Map<Long, Promotions> existingPromotionsMap = existingEvent.getPromotions().stream()
+            .collect(Collectors.toMap(Promotions::getId, Function.identity()));
+
+        Set<Long> updatePromotionIds = new HashSet<>();
+
+        for (Promotions newPromotion : newPromotions) {
+            if (newPromotion.getId() != null && existingPromotionsMap.containsKey(newPromotion.getId())) {
+                Promotions existingPromotion = existingPromotionsMap.get(newPromotion.getId());
+                existingPromotion.setName(newPromotion.getName());
+                existingPromotion.setDiscount(newPromotion.getDiscount());
+                existingPromotion.setMaxUser(newPromotion.getMaxUser());
+                updatePromotionIds.add(existingPromotion.getId());
+            } else {
+                newPromotion.setEventId(existingEvent);
+                existingEvent.getPromotions().add(newPromotion);
+                updatePromotionIds.add(newPromotion.getId());
+            }
+        }
+
+        existingEvent.getPromotions().removeIf(promotion -> !updatePromotionIds.contains(promotion.getId()));
+
+        Events updateEvent = eventsRepository.save(existingEvent);
+        EventsResponseDto responseDto = convertToDto(updateEvent);
+        return responseDto;
     }
 
     @Override
@@ -231,15 +290,17 @@ public EventsResponseDto convertToDto(Events events) {
     }
 
     @Override
-    public Void deleteBy(Long id) {
-        if (!eventsRepository.existsById(id)) {
-            throw new DataNotFoundException("user with id " + id + " not found");
-        } try{
-            eventsRepository.deleteById(id);
-        } catch(DataIntegrityViolationException ex) {
-            throw new DatabaseOperationException("Failed to delete user due to database error", ex);
-    }
-        return null;
+    @Transactional
+    public void deleteBy(Long id) {
+        Events event = eventsRepository.findById(id).orElseThrow(() -> new DataNotFoundException("event nott found with id "+ id));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        User currentUser = userService.findByEmail(currentUsername);
+        if (!event.getOrganizerId().equals(currentUser)) {
+            throw new DataNotFoundException("you are not authorized to delete this event");
+        }
+        eventsRepository.delete(event);
     }
 
     @Override
@@ -262,9 +323,9 @@ public EventsResponseDto convertToDto(Events events) {
         return ticketRepository.allTicketTier(eventId);
     }
 
-    private String getPublicIdFromUrl(String photoUrl) {
-        String[] components = photoUrl.split("/");
-        String publicWithFormat = components[components.length - 1];
-        return publicWithFormat.substring(0, publicWithFormat.lastIndexOf("."));
-    }
+    // private String getPublicIdFromUrl(String photoUrl) {
+    //     String[] components = photoUrl.split("/");
+    //     String publicWithFormat = components[components.length - 1];
+    //     return publicWithFormat.substring(0, publicWithFormat.lastIndexOf("."));
+    // }
 }
