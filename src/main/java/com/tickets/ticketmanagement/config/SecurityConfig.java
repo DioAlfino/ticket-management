@@ -59,6 +59,7 @@ public class SecurityConfig {
                     req.requestMatchers("/api/v1/auth/**").permitAll();
                     req.requestMatchers("/api/v1/user/register").permitAll();
                     req.requestMatchers("/api/v1/events").permitAll();
+                    req.requestMatchers("/api/v1/events/").permitAll();
                     req.anyRequest().authenticated();
                 })
                 .sessionManagement(session ->  session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
