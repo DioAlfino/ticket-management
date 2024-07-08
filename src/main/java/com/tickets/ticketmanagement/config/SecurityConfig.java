@@ -31,6 +31,8 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.tickets.ticketmanagement.auth.service.impl.UserDetailsServiceImpl;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Configuration
 // @EnableWebSecurity
 // @EnableMethodSecurity
@@ -88,15 +90,15 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:3000"));
-        configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(List.of("*"));
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
+        corsConfiguration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+        corsConfiguration.setAllowedOriginPatterns(List.of("http://localhost:3000"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PUT", "OPTIONS", "PATCH", "DELETE"));
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setExposedHeaders(List.of("Authorization", "Access-Control-Allow-Origin", "Access-Control-Allow-Credentials"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
     }
 }
