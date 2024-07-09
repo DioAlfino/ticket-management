@@ -43,6 +43,9 @@ public class Referrals {
     @Column(name = "discountAmount", nullable = false)
     private double discountAmount;
 
+    @Column(name = "is_used")
+    private boolean isUsed;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
     

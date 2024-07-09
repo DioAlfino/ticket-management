@@ -286,6 +286,8 @@ public EventsResponseDto convertToDto(Events events) {
         dto.setLocation(events.getLocation());
         dto.setDate(events.getDate());
         dto.setImageUrl(events.getPhotoUrl());
+        dto.setCategoryName(events.getCategoryId().getName());
+
         return dto;
     }
 

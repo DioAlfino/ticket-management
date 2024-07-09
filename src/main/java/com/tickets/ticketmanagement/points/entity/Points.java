@@ -41,7 +41,7 @@ public class Points {
     private User userId;
 
     @Column(name = "point_balance", nullable = false, columnDefinition = "INT DEFAULT 0")
-    private int pointsBalance;
+    private Double pointsBalance;
 
     @Column(name = "expired_at")
     private Instant expiredAt;
@@ -81,7 +81,7 @@ public class Points {
     public void deductPoints(int points) {
         this.pointsBalance -= points;
         if (this.pointsBalance < 0) {
-            this.pointsBalance = 0;
+            this.pointsBalance = (double) 0;
         }
     }
 }

@@ -13,4 +13,5 @@ public class EventsAllDto {
     private String location;
     private Instant date;
     private String imageUrl;
+    private String categoryName;
 }
