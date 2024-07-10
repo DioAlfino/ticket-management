@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.tickets.ticketmanagement.transaction.Transaction;
-import com.tickets.ticketmanagement.transaction.TransactionService;
+import com.tickets.ticketmanagement.transaction.entity.Transaction;
+import com.tickets.ticketmanagement.transaction.service.TransactionService;
 
 @RestController
 @RequestMapping("/api/v1/transaction")

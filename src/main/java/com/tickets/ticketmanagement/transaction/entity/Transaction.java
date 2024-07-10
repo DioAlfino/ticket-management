@@ -1,4 +1,4 @@
-package com.tickets.ticketmanagement.transaction;
+package com.tickets.ticketmanagement.transaction.entity;
 
 import java.time.Instant;
 
