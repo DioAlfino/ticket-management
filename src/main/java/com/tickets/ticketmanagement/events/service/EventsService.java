@@ -12,7 +12,7 @@ import com.tickets.ticketmanagement.tickets.entity.Tickets;
 public interface EventsService {
 
     EventsResponseDto createEvents(EventsRequestRegisterDto registerDto);
-    Events findByName(String name);
+    List<EventsAllDto> findByName(String name);
     Events findById(Long id);
     EventsResponseDto updateEvents(Long id, EventsRequestUpdateDto eventsRequestUpdateDto);
     List<EventsAllDto> findAllEvents();

@@ -170,8 +170,9 @@ public EventsResponseDto convertToDto(Events events) {
     }
 
     @Override
-    public Events findByName(String name) {
-        return eventsRepository.findByName(name).orElseThrow(() -> new DataNotFoundException("user with email " + name + " not found"));
+    public List<EventsAllDto> findByName(String name) {
+        List<Events> events = eventsRepository.findByNameIgnoreCase(name);
+        return events.stream().map(this::EventConvertToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -286,7 +287,10 @@ public EventsResponseDto convertToDto(Events events) {
         dto.setLocation(events.getLocation());
         dto.setDate(events.getDate());
         dto.setImageUrl(events.getPhotoUrl());
-        dto.setCategoryName(events.getCategoryId().getName());
+        
+        if (events.getCategoryId() != null) {
+            dto.setCategoryName(events.getCategoryId().getName());
+        }
 
         return dto;
     }

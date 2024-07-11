@@ -46,13 +46,13 @@ public class EventsContoller {
         return ResponseEntity.status(HttpStatus.OK).body(updateEvent);
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<Response<Events>> getEventByName(@PathVariable String name) {
-        Events events = eventsService.findByName(name);
-        if (events != null) {
-            return Response.success(HttpStatus.OK.value(), "events fetched successfully", events);
-        }  
-            return Response.failed(HttpStatus.NOT_FOUND.value(), "events with email " + events + " not found");
+    @GetMapping("/name/{name}")
+    public ResponseEntity<Response<List<EventsAllDto>>> getEventByName(@PathVariable String name) {
+        List<EventsAllDto> events = eventsService.findByName(name);
+        if (!events.isEmpty()) {
+            return Response.success(HttpStatus.OK.value(), "Events fetched successfully", events);
+        }
+        return Response.failed(HttpStatus.NOT_FOUND.value(), "Events with name " + name + " not found");
     }
 
     @GetMapping("/{id}")

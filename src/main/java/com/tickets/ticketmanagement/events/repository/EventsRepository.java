@@ -1,7 +1,6 @@
 package com.tickets.ticketmanagement.events.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +11,8 @@ import com.tickets.ticketmanagement.events.entity.Events;
 
 @Repository
 public interface EventsRepository extends JpaRepository<Events, Long> {
-    Optional<Events> findByName(String name);
+    List<Events> findByNameIgnoreCase(String name);
+
 
     @Query("SELECT e FROM Events e WHERE " + 
         "(:location IS NULL OR e.location = :location) AND " +

@@ -31,7 +31,6 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.tickets.ticketmanagement.auth.service.impl.UserDetailsServiceImpl;
 
-import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
 // @EnableWebSecurity
@@ -67,6 +66,7 @@ public class SecurityConfig {
                     req.requestMatchers("/api/v1/user/register").permitAll();
                     req.requestMatchers("/api/v1/events").permitAll();
                     req.requestMatchers("/api/v1/events/").permitAll();
+                    req.requestMatchers("/api/v1/events/name/**").permitAll();
                     req.anyRequest().authenticated();
                 })
                 .sessionManagement(session ->  session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
