@@ -1,6 +1,10 @@
 package com.tickets.ticketmanagement.users.dto;
 
 
+import com.tickets.ticketmanagement.users.entity.RolesType;
+
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -18,7 +22,8 @@ public class RegisterRequestDto {
     private String password;
 
     @NotNull(message = "role is required")
-    private Long role;
+    @Enumerated(EnumType.STRING)
+    private RolesType role;
 
     private String referralCode; 
 }

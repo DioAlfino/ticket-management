@@ -18,7 +18,6 @@ import com.tickets.ticketmanagement.events.dto.EventsAllDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestRegisterDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestUpdateDto;
 import com.tickets.ticketmanagement.events.dto.EventsResponseDto;
-import com.tickets.ticketmanagement.events.entity.Events;
 import com.tickets.ticketmanagement.events.service.EventsService;
 import com.tickets.ticketmanagement.response.Response;
 import com.tickets.ticketmanagement.tickets.entity.Tickets;
@@ -46,7 +45,7 @@ public class EventsContoller {
         return ResponseEntity.status(HttpStatus.OK).body(updateEvent);
     }
 
-    @GetMapping("/name/{name}")
+    @GetMapping("/{name}")
     public ResponseEntity<Response<List<EventsAllDto>>> getEventByName(@PathVariable String name) {
         List<EventsAllDto> events = eventsService.findByName(name);
         if (!events.isEmpty()) {
@@ -55,14 +54,14 @@ public class EventsContoller {
         return Response.failed(HttpStatus.NOT_FOUND.value(), "Events with name " + name + " not found");
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Response<Events>> getEventById(@PathVariable Long id) {
-        Events events = eventsService.findById(id);
-        if (events != null) {
-            return Response.success("events fetched successfully", events);
-        }
-            return Response.failed(HttpStatus.NOT_FOUND.value(), "events with id " + id + " not found");
-    }
+    // @GetMapping("/{id}")
+    // public ResponseEntity<Response<Events>> getEventById(@PathVariable Long id) {
+    //     Events events = eventsService.findById(id);
+    //     if (events != null) {
+    //         return Response.success("events fetched successfully", events);
+    //     }
+    //         return Response.failed(HttpStatus.NOT_FOUND.value(), "events with id " + id + " not found");
+    // }
 
     @GetMapping("")
     public ResponseEntity<?> findAllEvent() {

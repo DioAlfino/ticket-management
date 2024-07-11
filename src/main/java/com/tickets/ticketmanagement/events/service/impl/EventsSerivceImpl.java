@@ -175,10 +175,10 @@ public EventsResponseDto convertToDto(Events events) {
         return events.stream().map(this::EventConvertToDto).collect(Collectors.toList());
     }
 
-    @Override
-    public Events findById(Long id) {
-        return eventsRepository.findById(id).orElseThrow(() -> new DataNotFoundException("user with id " + id + " not found"));
-    }
+    // @Override
+    // public Events findById(Long id) {
+    //     return eventsRepository.findById(id).orElseThrow(() -> new DataNotFoundException("user with id " + id + " not found"));
+    // }
 
     @Override
     @Transactional

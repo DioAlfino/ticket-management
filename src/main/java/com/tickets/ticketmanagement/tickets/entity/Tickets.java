@@ -6,6 +6,7 @@ import org.hibernate.annotations.ColumnDefault;
 
 import com.tickets.ticketmanagement.events.entity.Events;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -49,9 +50,10 @@ public class Tickets {
     private Integer availableSeats;
 
     @NotNull
+    @ManyToOne(fetch = FetchType.EAGER, optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "event_id")
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private Events event;
+
 
     @Column(name = "max_user", nullable = false)
     private Integer maxUser;

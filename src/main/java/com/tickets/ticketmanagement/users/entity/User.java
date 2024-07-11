@@ -7,16 +7,14 @@ import java.time.Instant;
 import org.hibernate.annotations.ColumnDefault;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.tickets.ticketmanagement.roles.entity.RolesEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
@@ -55,9 +53,9 @@ public class User {
     private String password;
 
     @NotNull
-    @JoinColumn(name = "role_id")
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    private RolesEntity role;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role_name")
+    private RolesType role;
 
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")

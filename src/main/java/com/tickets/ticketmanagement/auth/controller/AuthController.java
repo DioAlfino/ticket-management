@@ -15,13 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tickets.ticketmanagement.auth.dto.LoginRequestDto;
 import com.tickets.ticketmanagement.auth.dto.LoginResponseDto;
-import com.tickets.ticketmanagement.auth.entity.UserAuth;
 import com.tickets.ticketmanagement.auth.service.AuthService;
 
 import jakarta.servlet.http.Cookie;
-import lombok.extern.java.Log;
 
-@Log
 @RestController
 @RequestMapping("/api/v1/auth")
 @Validated
@@ -43,7 +40,6 @@ public class AuthController {
         var ctx = SecurityContextHolder.getContext();
         ctx.setAuthentication(authentication);
 
-        UserAuth userDetails = (UserAuth) authentication.getPrincipal();
         String token = authService.generateToken(authentication);
 
         LoginResponseDto response = new LoginResponseDto();

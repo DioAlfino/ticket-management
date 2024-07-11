@@ -34,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
             .stream()
             .map(GrantedAuthority:: getAuthority)
             .collect(Collectors.joining(" "));
-        
+
         JwtClaimsSet claims = JwtClaimsSet.builder()
             .issuer("self")
             .issuedAt(now)

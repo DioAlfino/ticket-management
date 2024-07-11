@@ -47,9 +47,9 @@ public class TransactionServiceImpl implements TransactionService{
         User currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() -> new RuntimeException("User not found"));
 
         // Memastikan bahwa user memiliki peran yang diizinkan untuk membeli tiket
-        if (currentUser.getRole().getId() != 2) {
-            throw new RuntimeException("User does not have permission to buy ticket");
-        }
+        // if (currentUser.getRole()) {
+        //     throw new RuntimeException("User does not have permission to buy ticket");
+        // }
 
         // Mendapatkan informasi tentang ticket tier yang dipilih
         Tickets ticketTier = ticketRepository.findById(ticketTierId).orElseThrow(() -> new RuntimeException("Ticket tier not found"));

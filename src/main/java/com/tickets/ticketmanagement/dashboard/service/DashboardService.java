@@ -92,6 +92,7 @@ public class DashboardService {
         return completeSalesData;
     }
     public List<SalesDataDto> getmonthlySalesDataByEventId(Long eventId) {
+        checkEventOwner(eventId);
     Instant endDate = Instant.now();
     Instant startDate = endDate.minus(30, ChronoUnit.DAYS);
     List<SalesDataDto> salesData = dashboardRepository.findWeeklySalesDataByEventId(eventId, startDate, endDate);

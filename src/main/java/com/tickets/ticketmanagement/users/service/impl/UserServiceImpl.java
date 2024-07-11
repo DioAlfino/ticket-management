@@ -10,7 +10,6 @@ import com.tickets.ticketmanagement.auth.helper.Claims;
 import com.tickets.ticketmanagement.exception.DataNotFoundException;
 import com.tickets.ticketmanagement.exception.DatabaseOperationException;
 import com.tickets.ticketmanagement.exception.UserAlreadyExistException;
-import com.tickets.ticketmanagement.roles.entity.RolesEntity;
 import com.tickets.ticketmanagement.users.dto.RegisterRequestDto;
 import com.tickets.ticketmanagement.users.dto.UserProfileUpdateDto;
 import com.tickets.ticketmanagement.users.entity.User;
@@ -37,9 +36,7 @@ public class UserServiceImpl implements UserService {
         user.setName(registerRequestDto.getName());
         user.setEmail(registerRequestDto.getEmail());
         user.setPassword(passwordEncoder.encode(registerRequestDto.getPassword()));
-        RolesEntity roles = new RolesEntity();
-        roles.setId(registerRequestDto.getRole());
-        user.setRole(roles);
+        user.setRole(registerRequestDto.getRole());
 
         try {
             return userRepository.save(user);
