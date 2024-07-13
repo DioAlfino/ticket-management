@@ -24,10 +24,12 @@ public class EventsRequestRegisterDto {
     private String location;
 
     @NotNull(message = "Date is required")
-    private  Instant date;;
+    private  Instant date;
+
+    @NotNull(message = "Date is required")
+    private  Instant endDate;
 
     @NotBlank(message = "Event type is required")
-    @Size(max = 50, message = "Event type must be less than 50 characters")
     private Boolean isFree;
 
     @NotNull(message = "Category ID is required")
@@ -38,4 +40,6 @@ public class EventsRequestRegisterDto {
 
     private String tickets;
     private String promotions;
+    private Integer availableSeats;
+    private Integer maxUser;
 }

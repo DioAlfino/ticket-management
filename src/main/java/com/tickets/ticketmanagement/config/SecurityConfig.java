@@ -31,6 +31,8 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.tickets.ticketmanagement.auth.service.impl.UserDetailsServiceImpl;
 
+import jakarta.servlet.http.Cookie;
+
 
 @Configuration
 // @EnableWebSecurity
@@ -62,16 +64,31 @@ public class SecurityConfig {
        return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers("/api/v1/auth/**").permitAll();
-                    req.requestMatchers("/api/v1/user/register").permitAll();
-                    req.requestMatchers("/api/v1/events").permitAll();
-                    req.requestMatchers("/api/v1/events/").permitAll();
-                    req.requestMatchers("/api/v1/events/create").hasAuthority("SCOPE_ORGANIZER");
-                    req.requestMatchers("/api/v1/events/{name}").permitAll();
-                    req.anyRequest().authenticated();
+                    // req.requestMatchers("/api/v1/auth/**").permitAll();
+                    // req.requestMatchers("/api/v1/user/register").permitAll();
+                    // req.requestMatchers("/api/v1/events").permitAll();
+                    // req.requestMatchers("/api/v1/events/").permitAll();
+                    // req.requestMatchers("/api/v1/events/create").hasAuthority("SCOPE_ORGANIZER");
+                    // req.requestMatchers("/api/v1/events/{name}").permitAll();
+                    // req.anyRequest().authenticated();
+                    req.anyRequest().permitAll();
                 })
                 .sessionManagement(session ->  session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())))
+                .oauth2ResourceServer((oauth2) -> {
+                    oauth2.jwt((jwt) -> jwt.decoder(jwtDecoder()));
+                    oauth2.bearerTokenResolver((request) -> {
+                        Cookie[] cookies = request.getCookies();
+                        if (cookies != null) {
+                            for (Cookie cookie : cookies) {
+                                if ("sid".equals(cookie.getName())) {
+                                    return cookie.getValue();
+                                }
+                            }
+                        }
+                        return null;
+                    });
+                })
+                // .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())))
                 .userDetailsService(userDetailsServiceImpl)
                 .httpBasic(Customizer.withDefaults())
                 .build();

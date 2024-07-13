@@ -26,6 +26,9 @@ public class EventsRequestUpdateDto {
     @NotNull(message = "Date is required")
     private Instant date;
 
+    @NotNull(message = "Date is required")
+    private Instant endDate;
+
     @NotBlank(message = "Event type is required")
     @Size(max = 50, message = "Event type must be less than 50 characters")
     private Boolean isFree;
@@ -38,5 +41,7 @@ public class EventsRequestUpdateDto {
 
     private String tickets;
     private String promotions;
+    private Integer availableSeats;
+    private Integer maxUser;
 
 }

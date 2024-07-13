@@ -15,6 +15,7 @@ public class EventsResponseDto {
     private Long id;
     private String name;
     private Instant date;
+    private Instant endDate;
     private String location;
     private String description;
     private Boolean isFree;

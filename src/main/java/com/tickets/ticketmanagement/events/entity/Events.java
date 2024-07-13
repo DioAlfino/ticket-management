@@ -50,6 +50,9 @@ public class Events {
     @NotNull
     @Column(name = "date")
     private Instant date;
+    @NotNull
+    @Column(name = "end_date")
+    private Instant endDate;
 
     @NotNull
     @Size(max = 255)
@@ -77,10 +80,10 @@ public class Events {
     @Column(name = "photo_url")
     private String photoUrl;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.EAGER)
     private List<Tickets> tickets;
 
-    @OneToMany(mappedBy = "eventId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "eventId", cascade = CascadeType.ALL, orphanRemoval = true,  fetch = FetchType.EAGER)
     private List<Promotions> promotions ;
     
     @NotNull

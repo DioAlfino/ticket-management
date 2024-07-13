@@ -20,7 +20,6 @@ import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -39,13 +38,9 @@ public class Tickets {
     @Column(name ="tier_name")
     private String tierName;
 
-    @NotNull
-    @Positive
     @Column(name = "price", precision = 10)
     private Double price;
 
-    @Positive
-    @NotNull
     @Column(name ="available_seats")
     private Integer availableSeats;
 
