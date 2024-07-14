@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,6 +21,8 @@ import com.tickets.ticketmanagement.tickets.entity.Tickets;
 import com.tickets.ticketmanagement.tickets.repository.TicketRepository;
 import com.tickets.ticketmanagement.transaction.dto.TicketSelectionDto;
 import com.tickets.ticketmanagement.transaction.entity.Transaction;
+import com.tickets.ticketmanagement.transaction.entity.TransactionItem;
+import com.tickets.ticketmanagement.transaction.repository.TransactionItemRepository;
 import com.tickets.ticketmanagement.transaction.repository.TransactionRepository;
 import com.tickets.ticketmanagement.transaction.service.TransactionService;
 import com.tickets.ticketmanagement.users.entity.User;
@@ -31,6 +32,9 @@ public class TransactionServiceImpl implements TransactionService{
 
      @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private TransactionItemRepository transactionItemRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -46,7 +50,6 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Override
     @Transactional
-    // @PreAuthorize("hasRole('PARTICIPANT')")
     public Transaction createTransaction(List<TicketSelectionDto> ticketSelectionDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
@@ -97,6 +100,9 @@ public class TransactionServiceImpl implements TransactionService{
 
         Transaction transaction = new Transaction();
         transaction.setParticipant(currentUser);
+        transaction.setTotalAmount(totalAmount);
+        transaction.setDiscount(discount);
+        transaction.setPointsUsed(totalPoints);
         transaction.setFinalAmount(finalAmount);
         transaction.setCreatedAt(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
         transactionRepository.save(transaction);
@@ -107,14 +113,12 @@ public class TransactionServiceImpl implements TransactionService{
 
             Tickets ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new DataNotFoundException("ticket tier not found"));
 
-            for(int i=0; i < quantity; i++ ) {
-                Transaction ticketTransaction = new Transaction();
-                ticketTransaction.setTicketTier(ticket);
-                ticketTransaction.setParticipant(currentUser);
-                ticketTransaction.setFinalAmount(ticket.getPrice() - (ticket.getPrice() * (referral.getDiscountAmount() / 100)));
-                ticketTransaction.setCreatedAt(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
-                transactionRepository.save(ticketTransaction);
-            }
+            TransactionItem transactionItem = new TransactionItem();
+            transactionItem.setTransaction(transaction);
+            transactionItem.setTickets(ticket);
+            transactionItem.setQuantity(quantity);
+            transactionItem.setPrice(ticket.getPrice());
+            transactionItemRepository.save(transactionItem);
         }
 
         return transaction;

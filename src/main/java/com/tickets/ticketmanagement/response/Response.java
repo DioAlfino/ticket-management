@@ -56,4 +56,11 @@ public class Response<T> {
         response.setData(data);
         return ResponseEntity.status(statusCode).body(response);
     }
+
+    public static <T> ResponseEntity<Response<T>> success(int statusCode, String message, T data, int totalPages, long totalElements) {
+        Response<T> response = new Response<>(statusCode, message);
+        response.setSuccess(true);
+        response.setData(data);
+        return ResponseEntity.status(statusCode).body(response);
+    }
 }

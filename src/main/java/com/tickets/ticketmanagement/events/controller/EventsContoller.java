@@ -2,6 +2,10 @@ package com.tickets.ticketmanagement.events.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -64,11 +68,17 @@ public class EventsContoller {
     // }
 
     @GetMapping("")
-    public ResponseEntity<?> findAllEvent() {
-        List<EventsAllDto> eventsAllDtos = eventsService.findAllEvents();
-    return Response.success("all events fatched succcessfully", eventsAllDtos);
-   } 
+    public ResponseEntity<?> findAllEvent(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue ="8") int size,
+        @RequestParam(defaultValue = "id.asc") String[] sort) {
 
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.by(sort[0]).with(Sort.Direction.fromString(sort[1]))));
+            Page<EventsAllDto> eventsPage = eventsService.findAllEvents(pageable);
+            
+            return Response.success(HttpStatus.OK.value(), "all events fetched successfully", eventsPage.getContent(), eventsPage.getTotalPages(), eventsPage.getTotalElements());
+    }
+        
    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable Long id) {
         try {

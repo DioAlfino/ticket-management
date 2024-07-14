@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -302,11 +304,17 @@ public EventsResponseDto convertToDto(Events events) {
         return responseDto;
     }
 
+    // @Override
+    // public List<EventsAllDto> findAllEvents() {
+    //     List<Events> events = eventsRepository.findAll();
+    //     return events.stream().map(this::EventConvertToDto).collect(Collectors.toList());
+    // }
+
     @Override
-    public List<EventsAllDto> findAllEvents() {
-        List<Events> events = eventsRepository.findAll();
-        return events.stream().map(this::EventConvertToDto).collect(Collectors.toList());
-    }
+    public Page<EventsAllDto> findAllEvents(Pageable pageable) {
+        Page<Events> eventsPage = eventsRepository.findAll(pageable);
+        return eventsPage.map(this::EventConvertToDto);
+    } 
 
     private EventsAllDto EventConvertToDto(Events events) {
         EventsAllDto dto = new EventsAllDto();

@@ -9,45 +9,45 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.tickets.ticketmanagement.dashboard.dto.SalesDataDto;
-import com.tickets.ticketmanagement.transaction.entity.Transaction;
+import com.tickets.ticketmanagement.transaction.entity.TransactionItem;
 
 @Repository
-public interface DashboardRepository extends JpaRepository<Transaction, Long> {
+public interface DashboardRepository extends JpaRepository<TransactionItem, Long> {
 
-    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.ticketTier.event.id, CAST(t.createdAt AS LocalDate), COUNT(t.id)) " +
-           "FROM Transaction t " +
-           "WHERE t.ticketTier.event.id = :eventId " +
-           "GROUP BY t.ticketTier.event.id, CAST(t.createdAt AS LocalDate)")
+    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate), COUNT(t.id)) " +
+           "FROM TransactionItem t " +
+           "WHERE t.tickets.event.id = :eventId " +
+           "GROUP BY t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate)")
     List<SalesDataDto> findSalesDataByEventId(@Param("eventId") Long eventId);
 
-    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.ticketTier.event.id, null, COUNT(t.id)) " +
-        "FROM Transaction t " +
-        "WHERE t.ticketTier.event.id = :eventId " +
-        "GROUP BY t.ticketTier.event.id")
+    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.tickets.event.id, null, COUNT(t.id)) " +
+        "FROM TransactionItem t " +
+        "WHERE t.tickets.event.id = :eventId " +
+        "GROUP BY t.tickets.event.id")
     SalesDataDto findTotalSalesDataByEventId(@Param("eventId") Long eventId);
 
-    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.ticketTier.event.id, CAST(t.createdAt AS LocalDate), COUNT(t.id)) " +
-        "FROM Transaction t " +
-        "WHERE t.ticketTier.event.id = :eventId AND t.createdAt >= :startDate AND t.createdAt <= :endDate " +
-        "GROUP BY t.ticketTier.event.id, CAST(t.createdAt AS LocalDate)")
+    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate), COUNT(t.id)) " +
+        "FROM TransactionItem t " +
+        "WHERE t.tickets.event.id = :eventId AND t.transaction.createdAt >= :startDate AND t.transaction.createdAt <= :endDate " +
+        "GROUP BY t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate)")
     List<SalesDataDto> findDailySalesDataByEventId(
         @Param("eventId") Long eventId,
         @Param("startDate") Instant startDate,
         @Param("endDate") Instant endDate);
 
-    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.ticketTier.event.id, CAST(t.createdAt AS LocalDate), COUNT(t.id)) " +
-        "FROM Transaction t " +
-        "WHERE t.ticketTier.event.id = :eventId AND t.createdAt >= :startDate AND t.createdAt <= :endDate " +
-        "GROUP BY t.ticketTier.event.id, CAST(t.createdAt AS LocalDate)")
+    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate), COUNT(t.id)) " +
+        "FROM TransactionItem t " +
+        "WHERE t.tickets.event.id = :eventId AND t.transaction.createdAt >= :startDate AND t.transaction.createdAt <= :endDate " +
+        "GROUP BY t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate)")
     List<SalesDataDto> findWeeklySalesDataByEventId(
         @Param("eventId") Long eventId,
         @Param("startDate") Instant startDate,
         @Param("endDate") Instant endDate);
 
-    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.ticketTier.event.id, CAST(t.createdAt AS LocalDate), COUNT(t.id)) " +
-        "FROM Transaction t " +
-        "WHERE t.ticketTier.event.id = :eventId AND t.createdAt >= :startDate AND t.createdAt <= :endDate " +
-        "GROUP BY t.ticketTier.event.id, CAST(t.createdAt AS LocalDate)")
+    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate), COUNT(t.id)) " +
+        "FROM TransactionItem t " +
+        "WHERE t.tickets.event.id = :eventId AND t.transaction.createdAt >= :startDate AND t.transaction.createdAt <= :endDate " +
+        "GROUP BY t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate)")
     List<SalesDataDto> findMonthlySalesDataByEventId(
         @Param("eventId") Long eventId,
         @Param("startDate") Instant startDate,

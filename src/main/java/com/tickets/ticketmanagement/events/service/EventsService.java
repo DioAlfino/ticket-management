@@ -2,6 +2,9 @@ package com.tickets.ticketmanagement.events.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.tickets.ticketmanagement.events.dto.EventsAllDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestRegisterDto;
 import com.tickets.ticketmanagement.events.dto.EventsRequestUpdateDto;
@@ -14,7 +17,8 @@ public interface EventsService {
     List<EventsAllDto> findByName(String name);
     // Events findById(Long id);
     EventsResponseDto updateEvents(Long id, EventsRequestUpdateDto eventsRequestUpdateDto);
-    List<EventsAllDto> findAllEvents();
+    // List<EventsAllDto> findAllEvents();
+    Page<EventsAllDto> findAllEvents(Pageable pageable);
     List<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree);
     List<Tickets> findTicketsByEventId(Long eventId);
     void deleteBy(Long id);
