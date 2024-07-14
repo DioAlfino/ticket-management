@@ -189,6 +189,12 @@ public EventsResponseDto convertToDto(Events events) {
         return responseDto;
     }
 
+    public EventsResponseDto getEventDetails(Long eventId) {
+        Events event = eventsRepository.findById(eventId)
+                .orElseThrow(() -> new DataNotFoundException("Event not found with id: " + eventId));
+        return convertToDto(event);
+    }
+
     @Override
     public List<EventsAllDto> findByName(String name) {
         List<Events> events = eventsRepository.findByNameContainingIgnoreCase(name);

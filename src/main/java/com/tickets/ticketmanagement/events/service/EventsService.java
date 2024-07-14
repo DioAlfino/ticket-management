@@ -15,7 +15,7 @@ public interface EventsService {
 
     EventsResponseDto createEvents(EventsRequestRegisterDto registerDto);
     List<EventsAllDto> findByName(String name);
-    // Events findById(Long id);
+    EventsResponseDto getEventDetails(Long eventId);
     EventsResponseDto updateEvents(Long id, EventsRequestUpdateDto eventsRequestUpdateDto);
     // List<EventsAllDto> findAllEvents();
     Page<EventsAllDto> findAllEvents(Pageable pageable);

@@ -58,14 +58,11 @@ public class EventsContoller {
         return Response.failed(HttpStatus.NOT_FOUND.value(), "Events with name " + name + " not found");
     }
 
-    // @GetMapping("/{id}")
-    // public ResponseEntity<Response<Events>> getEventById(@PathVariable Long id) {
-    //     Events events = eventsService.findById(id);
-    //     if (events != null) {
-    //         return Response.success("events fetched successfully", events);
-    //     }
-    //         return Response.failed(HttpStatus.NOT_FOUND.value(), "events with id " + id + " not found");
-    // }
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<EventsResponseDto> getEventDetails(@PathVariable Long id) {
+        EventsResponseDto eventDetails = eventsService.getEventDetails(id);
+        return ResponseEntity.ok(eventDetails);
+    }
 
     @GetMapping("")
     public ResponseEntity<?> findAllEvent(
