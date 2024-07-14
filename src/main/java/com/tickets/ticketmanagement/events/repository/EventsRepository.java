@@ -11,7 +11,7 @@ import com.tickets.ticketmanagement.events.entity.Events;
 
 @Repository
 public interface EventsRepository extends JpaRepository<Events, Long> {
-    List<Events> findByNameIgnoreCase(String name);
+    List<Events> findByNameContainingIgnoreCase(String name);
 
 
     @Query("SELECT e FROM Events e WHERE " + 

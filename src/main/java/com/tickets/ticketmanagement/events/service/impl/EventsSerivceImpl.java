@@ -189,7 +189,7 @@ public EventsResponseDto convertToDto(Events events) {
 
     @Override
     public List<EventsAllDto> findByName(String name) {
-        List<Events> events = eventsRepository.findByNameIgnoreCase(name);
+        List<Events> events = eventsRepository.findByNameContainingIgnoreCase(name);
         return events.stream().map(this::EventConvertToDto).collect(Collectors.toList());
     }
 
