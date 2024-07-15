@@ -90,24 +90,30 @@ public class EventsContoller {
     }
 
     @GetMapping("/")
-    public ResponseEntity<Response<List<EventsAllDto>>> filterEvents (
-        @RequestParam(required = false) String location,
-        @RequestParam(required = false) Long categoryId,
-        @RequestParam(required = false) Boolean isFree,
-        @RequestParam(required = false) String name,
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "8") int size,
-        @RequestParam(defaultValue = "id,asc") String[] sort 
-    ) {
-        String sortField = sort[0];
-        String sortDirection = sort.length > 1 ? sort[1] : "asc";
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Sort.Order order = new Sort.Order(direction, sortField);
-        Pageable pageable = PageRequest.of(page, size, Sort.by(order));
+public ResponseEntity<Response<List<EventsAllDto>>> filterEvents (
+    @RequestParam(required = false) String location,
+    @RequestParam(required = false) Long categoryId,
+    @RequestParam(required = false) Boolean isFree,
+    @RequestParam(required = false) String name,
+    @RequestParam(defaultValue = "0") int page,
+    @RequestParam(defaultValue = "8") int size,
+    @RequestParam(defaultValue = "id,asc") String[] sort 
+) {
+    String sortField = sort[0];
+    String sortDirection = sort.length > 1 ? sort[1] : "asc";
+    Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+    Sort.Order order = new Sort.Order(direction, sortField);
+    Pageable pageable = PageRequest.of(page, size, Sort.by(order));
 
-        Page<EventsAllDto> eventsPage = eventsService.filterEvents(location, categoryId, isFree, name, pageable);
-        return Response.success(HttpStatus.OK.value(), "all events fetched successfully", eventsPage.getContent(),  eventsPage.getTotalPages(),  eventsPage.getTotalElements());
+    Page<EventsAllDto> eventsPage;
+    if (name != null && !name.isEmpty()) {
+        eventsPage = eventsService.filterEvents(location, categoryId, isFree, name, pageable);
+    } else {
+        eventsPage = eventsService.filterEvents(location, categoryId, isFree, sortDirection, pageable);
     }
+    return Response.success(HttpStatus.OK.value(), "All events fetched successfully", eventsPage.getContent(), eventsPage.getTotalPages(), eventsPage.getTotalElements());
+}
+
 
     @GetMapping("/ticket/{id}")
     public ResponseEntity<List<Tickets>> getTicketTiers(@PathVariable("id") Long id) {

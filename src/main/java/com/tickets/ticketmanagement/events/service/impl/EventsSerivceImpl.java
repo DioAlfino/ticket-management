@@ -336,10 +336,11 @@ public EventsResponseDto convertToDto(Events events) {
     }
 
     @Override
-    public Page<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree, String name, Pageable pageable) {
-        Page<Events> events = eventsRepository.filterEvents(location, categoryId, isFree, name, pageable);
-        return events.map(this::EventConvertToDto);
-    }
+public Page<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree, String name, Pageable pageable) {
+    Page<Events> events = eventsRepository.filterEvents(location, categoryId, isFree, name, pageable);
+    return events.map(this::EventConvertToDto);
+}
+
 
     @Override
     public List<Tickets> findTicketsByEventId(Long eventId) {

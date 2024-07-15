@@ -17,16 +17,16 @@ public interface EventsRepository extends JpaRepository<Events, Long> {
 
 
     @Query("SELECT e FROM Events e WHERE " + 
-        "(:location IS NULL OR e.location = :location) AND " +
-        "(:categoryId IS NULL OR e.categoryId.id = :categoryId) AND " +
-        "(:isFree IS NULL OR e.isFree = :isFree) AND " +
-        "(:name IS NULL OR LOWER(e.name) LIKE LOWER(CONCAT('%', :name, '%')))"
-    )
-    Page<Events> filterEvents (
-        @Param ("location") String location,
-        @Param ("categoryId") Long categoryId,
-        @Param ("isFree") Boolean isFree,
-        @Param ("name") String name,
+       "(:location IS NULL OR e.location = :location) AND " +
+       "(:categoryId IS NULL OR e.categoryId.id = :categoryId) AND " +
+       "(:isFree IS NULL OR e.isFree = :isFree) AND " +
+       "(LOWER(e.name) LIKE LOWER(CONCAT('%', :name, '%')))")
+Page<Events> filterEvents(
+        @Param("location") String location,
+        @Param("categoryId") Long categoryId,
+        @Param("isFree") Boolean isFree,
+        @Param("name") String name,
         Pageable pageable);
+
 
 }
