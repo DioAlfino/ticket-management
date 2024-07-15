@@ -352,8 +352,8 @@ public EventsResponseDto convertToDto(Events events) {
     }
 
     @Override
-    public List<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree) {
-        List<Events> events = eventsRepository.filterEvents(location, categoryId, isFree);
+    public List<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree, String name) {
+        List<Events> events = eventsRepository.filterEvents(location, categoryId, isFree, name);
         return events.stream().map(this::EventConvertToDto).collect(Collectors.toList());
     }
 

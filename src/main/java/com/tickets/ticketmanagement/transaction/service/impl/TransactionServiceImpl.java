@@ -1,5 +1,6 @@
 package com.tickets.ticketmanagement.transaction.service.impl;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -15,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tickets.ticketmanagement.exception.DataNotFoundException;
 import com.tickets.ticketmanagement.points.entity.Points;
 import com.tickets.ticketmanagement.points.repository.PointsRepository;
+import com.tickets.ticketmanagement.promotions.entity.Promotions;
+import com.tickets.ticketmanagement.promotions.repository.PromotionsRepository;
 import com.tickets.ticketmanagement.referrals.entity.Referrals;
 import com.tickets.ticketmanagement.referrals.repository.ReferralsRepository;
 import com.tickets.ticketmanagement.tickets.entity.Tickets;
@@ -47,81 +50,127 @@ public class TransactionServiceImpl implements TransactionService{
 
     @Autowired
     private ReferralsRepository referralsRepository;
+    @Autowired
+    private PromotionsRepository promotionsRepository;
 
-    @Override
-    @Transactional
-    public Transaction createTransaction(List<TicketSelectionDto> ticketSelectionDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = authentication.getName();
 
-        User currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() -> new RuntimeException("User not found"));
-
-        Map<Long, Integer> ticketQuentity = new HashMap<>();
-        for(TicketSelectionDto selection : ticketSelectionDto) {
-            ticketQuentity.put(selection.getTicketId(), selection.getQuantity());
-        }
-
-        List<Points> userPoints = pointsRepository.findAllByUserId(currentUser);
-
-        Referrals referral = referralsRepository.findByUserId(currentUser.getId()).orElseThrow(() -> new RuntimeException("Referral not found"));
-
-        double totalAmount = 0;
-        double discount = 0;
-        for(Map.Entry<Long, Integer> entry : ticketQuentity.entrySet()) {
-            Long ticketId = entry.getKey();
-            int quantity = entry.getValue();
-
-            Tickets ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new DataNotFoundException("Ticket tier not found"));
-            if (!referral.isUsed()) {
-                discount += ticket.getPrice() * (referral.getDiscountAmount() / 100) * quantity;
-            }
-            totalAmount += ticket.getPrice() * quantity;
-            ticket.setAvailableSeats(ticket.getAvailableSeats() - quantity);
-            ticketRepository.save(ticket);
-        }
-
-        double totalPoints = userPoints.stream().mapToDouble(Points::getPointsBalance).sum();
-        double finalAmount = totalAmount - discount - totalPoints;
-
-        Points negativPoints = new Points();
-        negativPoints.setUserId(currentUser);
-        negativPoints.setPointsBalance(-totalPoints);
-        negativPoints.setCreatedAt(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
-        pointsRepository.save(negativPoints);
-        
-        if (finalAmount < 0) {
-            throw new RuntimeException("Final amount cannot be negative");
-        }
-
-        if (!referral.isUsed()) {
-            referral.setUsed(true);
-            referralsRepository.save(referral);
-        }
-
-        Transaction transaction = new Transaction();
-        transaction.setParticipant(currentUser);
-        transaction.setTotalAmount(totalAmount);
-        transaction.setDiscount(discount);
-        transaction.setPointsUsed(totalPoints);
-        transaction.setFinalAmount(finalAmount);
-        transaction.setCreatedAt(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
-        transactionRepository.save(transaction);
-
-        for(Map.Entry<Long, Integer> entry : ticketQuentity.entrySet()) {
-            Long ticketId = entry.getKey();
-            int quantity = entry.getValue();
-
-            Tickets ticket = ticketRepository.findById(ticketId).orElseThrow(() -> new DataNotFoundException("ticket tier not found"));
-
-            TransactionItem transactionItem = new TransactionItem();
-            transactionItem.setTransaction(transaction);
-            transactionItem.setTickets(ticket);
-            transactionItem.setQuantity(quantity);
-            transactionItem.setPrice(ticket.getPrice());
-            transactionItemRepository.save(transactionItem);
-        }
-
-        return transaction;
+@Override
+@Transactional
+public Transaction createTransaction(List<TicketSelectionDto> ticketSelectionDto) {
+    if (ticketSelectionDto == null || ticketSelectionDto.isEmpty()) {
+        throw new IllegalArgumentException("No tickets selected");
     }
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String currentUsername = authentication.getName();
+
+    User currentUser = userRepository.findByEmail(currentUsername)
+            .orElseThrow(() -> new DataNotFoundException("User not found"));
+
+    Long eventId = ticketRepository.findById(ticketSelectionDto.get(0).getTicketId())
+            .orElseThrow(() -> new DataNotFoundException("Ticket not found"))
+            .getEvent().getId();
+
+    Map<Long, Integer> ticketQuantity = new HashMap<>();
+    double totalAmount = 0;
+    double discount = 0;
+
+    // Process all tickets
+    for (TicketSelectionDto selection : ticketSelectionDto) {
+        Tickets ticket = ticketRepository.findById(selection.getTicketId())
+                .orElseThrow(() -> new DataNotFoundException("Ticket tier not found"));
+
+        if (!ticket.getEvent().getId().equals(eventId)) {
+            throw new IllegalArgumentException("All tickets must be from the same event");
+        }
+
+        int quantity = selection.getQuantity();
+        ticketQuantity.put(selection.getTicketId(), quantity);
+
+        totalAmount += ticket.getPrice() * quantity;
+        ticket.setAvailableSeats(ticket.getAvailableSeats() - quantity);
+        ticketRepository.save(ticket);
+    }
+
+    Instant now = Instant.now();
+
+    List<Points> userPoints = pointsRepository.findAllByUserId(currentUser);
+    Referrals referral = referralsRepository.findByUserId(currentUser.getId())
+            .orElseThrow(() -> new DataNotFoundException("Referral not found"));
+
+    // Apply referral discount if not used
+    if (!referral.isUsed()) {
+        discount = totalAmount * (referral.getDiscountAmount() / 100);
+    }
+
+    double totalPoints = userPoints.stream().mapToDouble(Points::getPointsBalance).sum();
+    double finalAmount = totalAmount - discount - totalPoints;
+
+    // Apply promotion discount if available
+    Promotions activePromotion = promotionsRepository.findActivePromotionForEvent(now, eventId);
+    if (activePromotion != null) {
+        double promotionDiscount = activePromotion.getDiscount();
+        finalAmount -= promotionDiscount;
+        discount += promotionDiscount;
+        
+        activePromotion.setMaxUser(activePromotion.getMaxUser() - 1);
+        promotionsRepository.save(activePromotion);
+        
+        System.out.println("Applied promotion: " + activePromotion.getId() + ", Discount: " + promotionDiscount);
+    } else {
+        System.out.println("No active promotion found for event: " + eventId);
+    }
+
+    // Create negative points entry
+    Points negativePoints = new Points();
+    negativePoints.setUserId(currentUser);
+    negativePoints.setPointsBalance(-totalPoints);
+    negativePoints.setCreatedAt(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+    pointsRepository.save(negativePoints);
+
+    if (finalAmount < 0) {
+        throw new IllegalStateException("Final amount cannot be negative");
+    }
+
+    // Mark referral as used
+    if (!referral.isUsed()) {
+        referral.setUsed(true);
+        referralsRepository.save(referral);
+    }
+
+    // Create and save transaction
+    Transaction transaction = new Transaction();
+    transaction.setParticipant(currentUser);
+    transaction.setDiscount(discount);
+    transaction.setTotalAmount(totalAmount);
+    transaction.setPointsUsed(totalPoints);
+    transaction.setFinalAmount(finalAmount);
+    transaction.setCreatedAt(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+    transactionRepository.save(transaction);
+
+    // Create and save transaction items
+    for (Map.Entry<Long, Integer> entry : ticketQuantity.entrySet()) {
+        Long ticketId = entry.getKey();
+        int quantity = entry.getValue();
+
+        Tickets ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new DataNotFoundException("Ticket tier not found"));
+
+        TransactionItem transactionItem = new TransactionItem();
+        transactionItem.setTransaction(transaction);
+        transactionItem.setTickets(ticket);
+        transactionItem.setQuantity(quantity);
+        transactionItem.setPrice(ticket.getPrice());
+        transactionItemRepository.save(transactionItem);
+    }
+
+    System.out.println("Transaction created: " + transaction.getId());
+    System.out.println("Total amount: " + totalAmount);
+    System.out.println("Discount applied: " + discount);
+    System.out.println("Points used: " + totalPoints);
+    System.out.println("Final amount: " + finalAmount);
+
+    return transaction;
+}
 
 }

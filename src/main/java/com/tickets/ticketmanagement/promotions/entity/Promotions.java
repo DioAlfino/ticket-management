@@ -1,5 +1,6 @@
 package com.tickets.ticketmanagement.promotions.entity;
 
+import java.time.Duration;
 import java.time.Instant;
 
 import org.hibernate.annotations.ColumnDefault;
@@ -40,7 +41,7 @@ public class Promotions {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private Events eventId;
 
-    @Column(name = "discount", nullable = false)
+    @Column(name = "discount", precision = 10, nullable = false)
     private Double discount;
 
     @Column(name = "max_user", nullable = false)
@@ -60,12 +61,14 @@ public class Promotions {
     public void prePersist() {
         Instant now = Instant.now();
         this.startDate = now;
-        this.endDate = now;
+        this.endDate = now.plus(Duration.ofDays(7));
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.endDate = Instant.now();
+        if (this.endDate == null || this.endDate.isBefore(Instant.now())) {
+            this.endDate = Instant.now().plus(Duration.ofDays(7));
+        }
     }
 
 }

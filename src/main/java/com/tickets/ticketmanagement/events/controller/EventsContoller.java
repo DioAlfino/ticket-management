@@ -90,9 +90,10 @@ public class EventsContoller {
     public ResponseEntity<Response<List<EventsAllDto>>> filterEvents (
         @RequestParam(required = false) String location,
         @RequestParam(required = false) Long categoryId,
-        @RequestParam(required = false) Boolean isFree 
+        @RequestParam(required = false) Boolean isFree,
+        @RequestParam(required = false) String name 
     ) {
-        List<EventsAllDto> events = eventsService.filterEvents(location, categoryId, isFree);
+        List<EventsAllDto> events = eventsService.filterEvents(location, categoryId, isFree, name);
         return Response.success("events fatced successfully", events);
     }
 
