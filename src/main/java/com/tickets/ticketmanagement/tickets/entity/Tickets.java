@@ -49,10 +49,6 @@ public class Tickets {
     @JoinColumn(name = "event_id")
     private Events event;
 
-
-    @Column(name = "max_user", nullable = false)
-    private Integer maxUser;
-
     @NotNull
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at", updatable = false)

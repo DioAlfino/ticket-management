@@ -94,8 +94,8 @@ public Transaction createTransaction(List<TicketSelectionDto> ticketSelectionDto
 
     Instant now = Instant.now();
 
-    List<Points> userPoints = pointsRepository.findAllByUserId(currentUser);
-    Referrals referral = referralsRepository.findByUserId(currentUser.getId())
+    List<Points> userPoints = pointsRepository.findAllActivePointsByUserId(now, currentUser);
+    Referrals referral = referralsRepository.findActiveReferralByUserId(now, currentUser.getId())
             .orElseThrow(() -> new DataNotFoundException("Referral not found"));
 
     // Apply referral discount if not used

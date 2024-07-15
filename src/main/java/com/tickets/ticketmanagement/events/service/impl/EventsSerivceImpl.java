@@ -3,11 +3,8 @@ package com.tickets.ticketmanagement.events.service.impl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -113,7 +110,6 @@ public class EventsSerivceImpl implements EventsService {
             freeTicket.setPrice(0.0);
             freeTicket.setTierName("Free Ticket");
             freeTicket.setAvailableSeats(registerDto.getAvailableSeats());
-            freeTicket.setMaxUser(registerDto.getMaxUser());
 
             List<Tickets> tickets = new ArrayList<>();
             tickets.add(freeTicket);
@@ -176,7 +172,7 @@ public EventsResponseDto convertToDto(Events events) {
 
         List<TicketDto> ticketDtos = new ArrayList<>();
         if (events.getTickets() != null && !events.getTickets().isEmpty()) {
-            ticketDtos = events.getTickets().stream().map(ticket -> new TicketDto(ticket.getTierName(), ticket.getPrice(), ticket.getAvailableSeats(), ticket.getMaxUser())).collect(Collectors.toList());
+            ticketDtos = events.getTickets().stream().map(ticket -> new TicketDto(ticket.getTierName(), ticket.getPrice(), ticket.getAvailableSeats())).collect(Collectors.toList());
         }
         responseDto.setTickets(ticketDtos);
 
@@ -240,14 +236,12 @@ public EventsResponseDto convertToDto(Events events) {
                 freeTicket.setPrice(0.0);
                 freeTicket.setTierName("Free Ticket");
                 freeTicket.setAvailableSeats(eventsRequestUpdateDto.getAvailableSeats());
-                freeTicket.setMaxUser(eventsRequestUpdateDto.getMaxUser());
             } else {
                 Tickets freeTicket = new Tickets();
                 freeTicket.setEvent(existingEvent);
                 freeTicket.setPrice(0.0);
                 freeTicket.setTierName("Free ticket");
                 freeTicket.setAvailableSeats(eventsRequestUpdateDto.getAvailableSeats());
-                freeTicket.setMaxUser(eventsRequestUpdateDto.getMaxUser());
                 existingEvent.getTickets().add(freeTicket);
             }
             existingEvent.getPromotions().clear();
@@ -258,51 +252,40 @@ public EventsResponseDto convertToDto(Events events) {
             } catch (IOException e) {
                 throw new RuntimeException("Failed to parse tickets JSON", e);
             }
-            Map<Long, Tickets> existingTicketsMap = existingEvent.getTickets().stream()
-            .collect(Collectors.toMap(Tickets::getId, Function.identity()));
 
-            Set<Long> updateTicketIds = new HashSet<>();
             for (Tickets newTicket : newTickets) {
-                if (newTicket.getId() != null && existingTicketsMap.containsKey(newTicket.getId())) {
-                    Tickets existingTicket = existingTicketsMap.get(newTicket.getId());
-                    existingTicket.setTierName(newTicket.getTierName());
+                Tickets existingTicket = existingEvent.getTickets().stream()
+                    .filter(ticket -> ticket.getTierName().equals(newTicket.getTierName()))
+                    .findFirst()
+                    .orElse(null);
+                if (existingTicket != null) {
                     existingTicket.setPrice(newTicket.getPrice());
                     existingTicket.setAvailableSeats(newTicket.getAvailableSeats());
-                    existingTicket.setMaxUser(newTicket.getMaxUser());
-                    updateTicketIds.add(existingTicket.getId());
                 } else {
                     newTicket.setEvent(existingEvent);
-                    Tickets savedTicket = ticketRepository.save(newTicket);
-                    updateTicketIds.add(savedTicket.getId());
-                    }
+                    ticketRepository.save(newTicket);
                 }
-            existingEvent.getTickets().removeIf(ticket -> !updateTicketIds.contains(ticket.getId()));
+            }
             List<Promotions> newPromotions;
             try {
                 newPromotions = objectMapper.readValue(eventsRequestUpdateDto.getPromotions(), new TypeReference<List<Promotions>>() {});
             } catch (IOException e) {
                 throw new RuntimeException("Failed to parse promotions json", e);
             }
-            Map<Long, Promotions> existingPromotionsMap = existingEvent.getPromotions().stream()
-                .collect(Collectors.toMap(Promotions::getId, Function.identity()));
-
-            Set<Long> updatePromotionIds = new HashSet<>();
 
             for (Promotions newPromotion : newPromotions) {
-                if (newPromotion.getId() != null && existingPromotionsMap.containsKey(newPromotion.getId())) {
-                    Promotions existingPromotion = existingPromotionsMap.get(newPromotion.getId());
-                    existingPromotion.setName(newPromotion.getName());
+                Promotions existingPromotion = existingEvent.getPromotions().stream()
+                    .filter(promotion -> promotion.getName().equals(newPromotion.getName()))
+                    .findFirst()
+                    .orElse(null);
+                if (existingPromotion != null) {
                     existingPromotion.setDiscount(newPromotion.getDiscount());
                     existingPromotion.setMaxUser(newPromotion.getMaxUser());
-                    updatePromotionIds.add(existingPromotion.getId());
                 } else {
                     newPromotion.setEventId(existingEvent);
-                    Promotions savedPromotion = promotionsRepository.save(newPromotion);
-                    updatePromotionIds.add(savedPromotion.getId());
+                    promotionsRepository.save(newPromotion);
                 }
             }
-            existingEvent.getPromotions().removeIf(promotion -> !updatePromotionIds.contains(promotion.getId()));
-
         }
 
         Events updateEvent = eventsRepository.save(existingEvent);
