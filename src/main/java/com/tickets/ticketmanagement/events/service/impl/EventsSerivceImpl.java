@@ -156,6 +156,7 @@ public EventsResponseDto convertToDto(Events events) {
         responseDto.setLocation(events.getLocation());
         responseDto.setDescription(events.getDescription());
         responseDto.setIsFree(events.getIsFree());
+        responseDto.setImageUrl(events.getPhotoUrl());
         
         // Konversi organizer
         OrganizerDto organizerDto = new OrganizerDto();
@@ -172,13 +173,13 @@ public EventsResponseDto convertToDto(Events events) {
 
         List<TicketDto> ticketDtos = new ArrayList<>();
         if (events.getTickets() != null && !events.getTickets().isEmpty()) {
-            ticketDtos = events.getTickets().stream().map(ticket -> new TicketDto(ticket.getTierName(), ticket.getPrice(), ticket.getAvailableSeats())).collect(Collectors.toList());
+            ticketDtos = events.getTickets().stream().map(ticket -> new TicketDto(ticket.getTierName(), ticket.getPrice(), ticket.getAvailableSeats(), ticket.getId())).collect(Collectors.toList());
         }
         responseDto.setTickets(ticketDtos);
 
         List<PromotionsDto> promotionsDtos = new ArrayList<>();
         if (events.getPromotions() != null && !events.getPromotions().isEmpty()) {
-            promotionsDtos = events.getPromotions().stream().map(promotion -> new PromotionsDto(promotion.getName(), promotion.getDiscount(), promotion.getMaxUser())).collect(Collectors.toList());
+            promotionsDtos = events.getPromotions().stream().map(promotion -> new PromotionsDto(promotion.getName(), promotion.getDiscount(), promotion.getMaxUser(), promotion.getId())).collect(Collectors.toList());
         } 
         responseDto.setPromotions(promotionsDtos);
 

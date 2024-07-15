@@ -17,6 +17,7 @@ public class EventsResponseDto {
     private Instant date;
     private Instant endDate;
     private String location;
+    private String imageUrl;
     private String description;
     private Boolean isFree;
     private OrganizerDto organizer;

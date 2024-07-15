@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class PromotionsDto {
+    private Long id;
 
     private String name;
 
@@ -11,7 +12,8 @@ public class PromotionsDto {
     
     private Integer maxUser;
 
-    public PromotionsDto(String name, Double discount, Integer maxUser) {
+    public PromotionsDto(String name, Double discount, Integer maxUser, Long id) {
+        this.id = id;
         this.name = name;
         this.discount = discount;
         this.maxUser = maxUser;
