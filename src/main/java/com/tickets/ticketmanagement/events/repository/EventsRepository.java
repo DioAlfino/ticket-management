@@ -2,6 +2,8 @@ package com.tickets.ticketmanagement.events.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,10 +22,11 @@ public interface EventsRepository extends JpaRepository<Events, Long> {
         "(:isFree IS NULL OR e.isFree = :isFree) AND " +
         "(:name IS NULL OR LOWER(e.name) LIKE LOWER(CONCAT('%', :name, '%')))"
     )
-    List<Events> filterEvents (
+    Page<Events> filterEvents (
         @Param ("location") String location,
         @Param ("categoryId") Long categoryId,
         @Param ("isFree") Boolean isFree,
-        @Param ("name") String name);
+        @Param ("name") String name,
+        Pageable pageable);
 
 }

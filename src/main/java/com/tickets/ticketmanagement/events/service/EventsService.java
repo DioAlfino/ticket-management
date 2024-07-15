@@ -19,7 +19,7 @@ public interface EventsService {
     EventsResponseDto updateEvents(Long id, EventsRequestUpdateDto eventsRequestUpdateDto);
     // List<EventsAllDto> findAllEvents();
     Page<EventsAllDto> findAllEvents(Pageable pageable);
-    List<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree, String name);
+    Page<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree, String name, Pageable pageable);
     List<Tickets> findTicketsByEventId(Long eventId);
     void deleteBy(Long id);
 }
