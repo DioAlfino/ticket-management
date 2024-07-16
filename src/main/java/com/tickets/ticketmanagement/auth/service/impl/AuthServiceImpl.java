@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import com.tickets.ticketmanagement.auth.dto.LoginResponseDto;
 import com.tickets.ticketmanagement.auth.service.AuthService;
 import com.tickets.ticketmanagement.users.repository.UserRepository;
 
@@ -28,7 +29,7 @@ public class AuthServiceImpl implements AuthService {
         this.userRepository = userRepository;
     }
 
-    public String generateToken(Authentication authentication) {
+    public LoginResponseDto generateToken(Authentication authentication) {
         Instant now = Instant.now();
         String scope = authentication.getAuthorities()
             .stream()
@@ -44,7 +45,11 @@ public class AuthServiceImpl implements AuthService {
             .claim("userId", userRepository.findByEmail(authentication.getName()).get().getId())
             .build();
 
-        return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+            LoginResponseDto data = new LoginResponseDto();
+            data.setRole(scope);
+            var token = jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+            data.setToken(token);
+            return data;
 
     }
 

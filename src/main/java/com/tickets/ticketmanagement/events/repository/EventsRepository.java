@@ -15,6 +15,9 @@ import com.tickets.ticketmanagement.events.entity.Events;
 public interface EventsRepository extends JpaRepository<Events, Long> {
     List<Events> findByNameContainingIgnoreCase(String name);
 
+    @Query("SELECT COUNT(e) FROM Events e WHERE e.organizerId.id = :organizerId")
+    Long countEventsByOrganizerId(@Param("organizerId") Long organizerId);
+
 
     @Query("SELECT e FROM Events e WHERE " + 
        "(:location IS NULL OR e.location = :location) AND " +

@@ -74,46 +74,53 @@ public class DashboardService {
         return completeSalesData;
     }
 
-    public List<SalesDataDto> getWeeklySalesDataByEventId(Long eventId) {
-        checkEventOwner(eventId);
+    public List<SalesDataDto> getWeeklySalesDataByOrganizerId(Long organizerId) {
+        User currentUser = getCurrentUser();
         Instant endDate = Instant.now();
         Instant startDate = endDate.minus(7, ChronoUnit.DAYS);
-        List<SalesDataDto> salesData = dashboardRepository.findWeeklySalesDataByEventId(eventId, startDate, endDate);
+        List<SalesDataDto> salesData = dashboardRepository.findWeeklySalesDataByOrganizerId(currentUser.getId(), startDate, endDate);
+    
+        Map<LocalDate, SalesDataDto> salesDataMap = salesData.stream()
+            .collect(Collectors.toMap(SalesDataDto::getDate, Function.identity()));
+    
+        List<SalesDataDto> completeSalesData = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            LocalDate date = startDate.plus(i, ChronoUnit.DAYS).atZone(ZoneId.systemDefault()).toLocalDate();
+            completeSalesData.add(salesDataMap.getOrDefault(date, new SalesDataDto(null, date, 0L)));
+        }
+        return completeSalesData;
+    }
+    public List<SalesDataDto> getmonthlySalesDataByEventId(Long organizerId) {
+        User currentUser = getCurrentUser();
+        Instant endDate = Instant.now();
+        Instant startDate = endDate.minus(30, ChronoUnit.DAYS);
+        List<SalesDataDto> salesData = dashboardRepository.findMonthlySalesDataByEventId(currentUser.getId(), startDate, endDate);
 
-        // Mengisi tanggal yang kosong dengan salesCount 0
         Map<LocalDate, SalesDataDto> salesDataMap = salesData.stream()
             .collect(Collectors.toMap(SalesDataDto::getDate, Function.identity()));
 
         List<SalesDataDto> completeSalesData = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 30; i++) {
             LocalDate date = startDate.plus(i, ChronoUnit.DAYS).atZone(ZoneId.systemDefault()).toLocalDate();
-            completeSalesData.add(salesDataMap.getOrDefault(date, new SalesDataDto(eventId, date, 0L)));
+            completeSalesData.add(salesDataMap.getOrDefault(date, new SalesDataDto(currentUser.getId(), date, 0L)));
         }
-        return completeSalesData;
-    }
-    public List<SalesDataDto> getmonthlySalesDataByEventId(Long eventId) {
-        checkEventOwner(eventId);
-    Instant endDate = Instant.now();
-    Instant startDate = endDate.minus(30, ChronoUnit.DAYS);
-    List<SalesDataDto> salesData = dashboardRepository.findWeeklySalesDataByEventId(eventId, startDate, endDate);
-
-    Map<LocalDate, SalesDataDto> salesDataMap = salesData.stream()
-        .collect(Collectors.toMap(SalesDataDto::getDate, Function.identity()));
-
-    List<SalesDataDto> completeSalesData = new ArrayList<>();
-    for (int i = 0; i < 30; i++) {
-        LocalDate date = startDate.plus(i, ChronoUnit.DAYS).atZone(ZoneId.systemDefault()).toLocalDate();
-        completeSalesData.add(salesDataMap.getOrDefault(date, new SalesDataDto(eventId, date, 0L)));
-    }
 
         return completeSalesData;
     }
 
-    public SalesDataDto getTotalSalesDataForAllEvents() {
+    public List<SalesDataDto> getTotalSalesDataForAllEvents() {
         User currentUser = getCurrentUser();
-        Long totalSales = dashboardRepository.findTotalSalesCountByOrganizerId(currentUser.getId());
-        return new SalesDataDto(null, null, totalSales);
+        return dashboardRepository.findTotalSalesDataForAllEventsByOrganizerId(currentUser.getId());
     }
 
+    public Long getTotalRevenueForAllEvents() {
+        User currentUser = getCurrentUser();
+        return dashboardRepository.findTotalRevenueForAllEventsByOrganizerId(currentUser.getId());
+    }
+
+    public Long getTotalEventsByCurrentUser() {
+        User currentUser = getCurrentUser();
+        return eventsRepository.countEventsByOrganizerId(currentUser.getId());
+    }
     
 }

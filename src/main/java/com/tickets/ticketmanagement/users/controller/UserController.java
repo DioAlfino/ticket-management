@@ -51,9 +51,9 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        User user = userService.findById(id);
+    @GetMapping("/profile")
+    public ResponseEntity<User> getUserById() {
+        User user = userService.findCurrentUser();
         if (user != null) {
             return ResponseEntity.ok(user);
         } else {

@@ -40,15 +40,12 @@ public class AuthController {
         var ctx = SecurityContextHolder.getContext();
         ctx.setAuthentication(authentication);
 
-        String token = authService.generateToken(authentication);
+        LoginResponseDto data = authService.generateToken(authentication);
+        data.setMessage("succussfully logged in");
 
-        LoginResponseDto response = new LoginResponseDto();
-        response.setMessage("user logged in successfully!");
-        response.setToken(token);
-
-        Cookie cookie = new Cookie("sid", token);
+        Cookie cookie = new Cookie("sid", data.getToken());
         HttpHeaders headers = new HttpHeaders();
         headers.add("set-cookie", cookie.getName() + "=" + cookie.getValue() + "; Path=/; HttpOnly");
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(response);
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(data);
     }
  }

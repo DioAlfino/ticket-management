@@ -3,6 +3,8 @@ package com.tickets.ticketmanagement.users.service.impl;
 import java.util.List;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,8 +53,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(()-> new DataNotFoundException("user with id " + id + "not found"));
+    public User findCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        return userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new DataNotFoundException("User with email " + currentUsername + " not found"));
     }
 
     @Override

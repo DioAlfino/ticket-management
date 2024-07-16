@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tickets.ticketmanagement.dashboard.dto.SalesDataDto;
 import com.tickets.ticketmanagement.dashboard.service.DashboardService;
+import com.tickets.ticketmanagement.response.Response;
 
 @RestController
 @RequestMapping("/api/v1/dashboard")
@@ -34,18 +35,31 @@ public class DashboardController {
     }
 
     @GetMapping("/sales/weekly")
-    public List<SalesDataDto> getWeeklySalesData(@RequestParam("eventId") Long eventId) {
-        return dashboardService.getWeeklySalesDataByEventId(eventId);
+    public ResponseEntity<List<SalesDataDto>> getWeeklySalesData() {
+        List<SalesDataDto> weeklySalesData = dashboardService.getWeeklySalesDataByOrganizerId(null);
+        return ResponseEntity.ok(weeklySalesData);
     }
-
+    
     @GetMapping("/sales/monthly")
-    public List<SalesDataDto> getMonthlySalesData(@RequestParam("eventId") Long eventId) {
-        return dashboardService.getmonthlySalesDataByEventId(eventId);
+    public ResponseEntity<List<SalesDataDto>> getMonthlySalesData() {
+        List<SalesDataDto> monthlySalesData = dashboardService.getmonthlySalesDataByEventId(null);
+        return ResponseEntity.ok(monthlySalesData);
     }
 
     @GetMapping("/sales/total-sales")
-    public ResponseEntity<SalesDataDto> getTotalSalesDataForAllEvents() {
-        SalesDataDto totalSalesData = dashboardService.getTotalSalesDataForAllEvents();
-        return ResponseEntity.ok(totalSalesData);
+    public ResponseEntity<Response<List<SalesDataDto>>> getTotalSalesDataForAllEvents() {
+        List<SalesDataDto> totalSalesData = dashboardService.getTotalSalesDataForAllEvents();
+        return Response.success("succss", totalSalesData);
+    }
+    @GetMapping("/sales/total-revenue")
+    public ResponseEntity<Response<Long>> getTotalRevenueForAllEvents() {
+        Long totalRevenue = dashboardService.getTotalRevenueForAllEvents();
+        return Response.success("success", totalRevenue);
+    }
+
+    @GetMapping("/events/total")
+    public ResponseEntity<Long> getTotalEventsByCurrentUser() {
+        Long totalEvents = dashboardService.getTotalEventsByCurrentUser();
+        return ResponseEntity.ok(totalEvents);
     }
 }

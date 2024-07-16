@@ -37,12 +37,13 @@ public interface DashboardRepository extends JpaRepository<TransactionItem, Long
 
     @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate), COUNT(t.id)) " +
         "FROM TransactionItem t " +
-        "WHERE t.tickets.event.id = :eventId AND t.transaction.createdAt >= :startDate AND t.transaction.createdAt <= :endDate " +
+        "WHERE t.tickets.event.organizerId.id = :organizerId AND t.transaction.createdAt >= :startDate AND t.transaction.createdAt <= :endDate " +
         "GROUP BY t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate)")
-    List<SalesDataDto> findWeeklySalesDataByEventId(
-        @Param("eventId") Long eventId,
+    List<SalesDataDto> findWeeklySalesDataByOrganizerId(
+        @Param("organizerId") Long organizerId,
         @Param("startDate") Instant startDate,
         @Param("endDate") Instant endDate);
+ 
 
     @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.tickets.event.id, CAST(t.transaction.createdAt AS LocalDate), COUNT(t.id)) " +
         "FROM TransactionItem t " +
@@ -53,8 +54,17 @@ public interface DashboardRepository extends JpaRepository<TransactionItem, Long
         @Param("startDate") Instant startDate,
         @Param("endDate") Instant endDate);
 
-    @Query("SELECT COALESCE(SUM(t.id), 0) " +
+    @Query("SELECT new com.tickets.ticketmanagement.dashboard.dto.SalesDataDto(t.tickets.event.id, null, COUNT(t.id)) " +
         "FROM TransactionItem t " +
-        "WHERE t.tickets.event.organizerId = :organizerId")
-    Long findTotalSalesCountByOrganizerId(@Param("organizerId") Long organizerId);
+        "WHERE t.tickets.event.organizerId.id = :organizerId " +
+        "GROUP BY t.tickets.event.id"
+        )
+    List<SalesDataDto> findTotalSalesDataForAllEventsByOrganizerId(@Param("organizerId") Long organizerId);
+
+    @Query("SELECT COALESCE(SUM(t.transaction.finalAmount), 0) " +
+        "FROM TransactionItem t " +
+        "WHERE t.tickets.event.organizerId.id = :organizerId")
+    Long findTotalRevenueForAllEventsByOrganizerId(@Param("organizerId") Long organizerId);
+
+ 
 }

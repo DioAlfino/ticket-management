@@ -2,6 +2,8 @@ package com.tickets.ticketmanagement.auth.service;
 
 import org.springframework.security.core.Authentication;
 
+import com.tickets.ticketmanagement.auth.dto.LoginResponseDto;
+
 public interface AuthService {
-    String generateToken (Authentication authentication);
+    LoginResponseDto generateToken (Authentication authentication);
 }
