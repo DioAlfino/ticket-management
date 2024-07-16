@@ -106,7 +106,7 @@ public class EventsContoller {
         Pageable pageable = PageRequest.of(page, size, Sort.by(order));
 
         Page<EventsAllDto> eventsPage = eventsService.filterEvents(location, categoryId, isFree, name, pageable);
-        return Response.success(HttpStatus.OK.value(), "All events fetched successfully", eventsPage.getContent(), eventsPage.getTotalPages(), eventsPage.getTotalElements());
+        return Response.success(HttpStatus.OK.value(), "All events fetched successfully", eventsPage.getContent(),page , eventsPage.getTotalPages(), eventsPage.getTotalElements());
     }
 
 

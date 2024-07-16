@@ -4,15 +4,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import lombok.Data;
-import lombok.ToString;
 
 @Data
-@ToString
 public class Response<T> {
     private int statusCode;
     private String message;
     boolean success = false;
     private T data;
+    private int page;
 
     public Response(int statCode, String statusDesc) {
         statusCode = statCode;
@@ -57,10 +56,11 @@ public class Response<T> {
         return ResponseEntity.status(statusCode).body(response);
     }
 
-    public static <T> ResponseEntity<Response<T>> success(int statusCode, String message, T data, int totalPages, long totalElements) {
+    public static <T> ResponseEntity<Response<T>> success(int statusCode, String message, T data,int page , int totalPages, long totalElements) {
         Response<T> response = new Response<>(statusCode, message);
         response.setSuccess(true);
         response.setData(data);
+        response.setPage(page);
         return ResponseEntity.status(statusCode).body(response);
     }
 }
