@@ -109,5 +109,11 @@ public class DashboardService {
         return completeSalesData;
     }
 
+    public SalesDataDto getTotalSalesDataForAllEvents() {
+        User currentUser = getCurrentUser();
+        Long totalSales = dashboardRepository.findTotalSalesCountByOrganizerId(currentUser.getId());
+        return new SalesDataDto(null, null, totalSales);
+    }
+
     
 }

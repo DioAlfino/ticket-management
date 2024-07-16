@@ -64,20 +64,20 @@ public class EventsContoller {
         return ResponseEntity.ok(eventDetails);
     }
 
-    @GetMapping("")
-    public ResponseEntity<?> findAllEvent(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue ="8") int size,
-        @RequestParam(defaultValue = "id,asc") String[] sort) {
+    // @GetMapping("")
+    // public ResponseEntity<?> findAllEvent(
+    //     @RequestParam(defaultValue = "0") int page,
+    //     @RequestParam(defaultValue ="8") int size,
+    //     @RequestParam(defaultValue = "id,asc") String[] sort) {
 
-            String sortField = sort[0];
-            String sortDirection = sort.length > 1 ? sort[1] : "asc";
+    //         String sortField = sort[0];
+    //         String sortDirection = sort.length > 1 ? sort[1] : "asc";
 
-            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.by(sortField).with(Sort.Direction.fromString(sortDirection))));
-        Page<EventsAllDto> eventsPage = eventsService.findAllEvents(pageable);
+    //         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.by(sortField).with(Sort.Direction.fromString(sortDirection))));
+    //     Page<EventsAllDto> eventsPage = eventsService.findAllEvents(pageable);
             
-            return Response.success(HttpStatus.OK.value(), "all events fetched successfully", eventsPage.getContent(), eventsPage.getTotalPages(), eventsPage.getTotalElements());
-    }
+    //         return Response.success(HttpStatus.OK.value(), "all events fetched successfully", eventsPage.getContent(), eventsPage.getTotalPages(), eventsPage.getTotalElements());
+    // }
         
    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable Long id) {
@@ -89,30 +89,26 @@ public class EventsContoller {
         }
     }
 
-    @GetMapping("/")
-public ResponseEntity<Response<List<EventsAllDto>>> filterEvents (
-    @RequestParam(required = false) String location,
-    @RequestParam(required = false) Long categoryId,
-    @RequestParam(required = false) Boolean isFree,
-    @RequestParam(required = false) String name,
-    @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "8") int size,
-    @RequestParam(defaultValue = "id,asc") String[] sort 
-) {
-    String sortField = sort[0];
-    String sortDirection = sort.length > 1 ? sort[1] : "asc";
-    Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-    Sort.Order order = new Sort.Order(direction, sortField);
-    Pageable pageable = PageRequest.of(page, size, Sort.by(order));
+    @GetMapping("")
+    public ResponseEntity<Response<List<EventsAllDto>>> filterEvents(
+        @RequestParam(required = false) String location,
+        @RequestParam(required = false) Long categoryId,
+        @RequestParam(required = false) Boolean isFree,
+        @RequestParam(required = false) String name,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "8") int size,
+        @RequestParam(defaultValue = "id,asc") String[] sort 
+    ) {
+        String sortField = sort[0];
+        String sortDirection = sort.length > 1 ? sort[1] : "asc";
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Sort.Order order = new Sort.Order(direction, sortField);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(order));
 
-    Page<EventsAllDto> eventsPage;
-    if (name != null && !name.isEmpty()) {
-        eventsPage = eventsService.filterEvents(location, categoryId, isFree, name, pageable);
-    } else {
-        eventsPage = eventsService.filterEvents(location, categoryId, isFree, sortDirection, pageable);
+        Page<EventsAllDto> eventsPage = eventsService.filterEvents(location, categoryId, isFree, name, pageable);
+        return Response.success(HttpStatus.OK.value(), "All events fetched successfully", eventsPage.getContent(), eventsPage.getTotalPages(), eventsPage.getTotalElements());
     }
-    return Response.success(HttpStatus.OK.value(), "All events fetched successfully", eventsPage.getContent(), eventsPage.getTotalPages(), eventsPage.getTotalElements());
-}
+
 
 
     @GetMapping("/ticket/{id}")

@@ -2,6 +2,7 @@ package com.tickets.ticketmanagement.dashboard.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,5 +41,11 @@ public class DashboardController {
     @GetMapping("/sales/monthly")
     public List<SalesDataDto> getMonthlySalesData(@RequestParam("eventId") Long eventId) {
         return dashboardService.getmonthlySalesDataByEventId(eventId);
+    }
+
+    @GetMapping("/sales/total-sales")
+    public ResponseEntity<SalesDataDto> getTotalSalesDataForAllEvents() {
+        SalesDataDto totalSalesData = dashboardService.getTotalSalesDataForAllEvents();
+        return ResponseEntity.ok(totalSalesData);
     }
 }

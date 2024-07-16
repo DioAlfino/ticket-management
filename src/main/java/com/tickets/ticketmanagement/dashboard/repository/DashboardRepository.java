@@ -52,4 +52,9 @@ public interface DashboardRepository extends JpaRepository<TransactionItem, Long
         @Param("eventId") Long eventId,
         @Param("startDate") Instant startDate,
         @Param("endDate") Instant endDate);
+
+    @Query("SELECT COALESCE(SUM(t.id), 0) " +
+        "FROM TransactionItem t " +
+        "WHERE t.tickets.event.organizerId = :organizerId")
+    Long findTotalSalesCountByOrganizerId(@Param("organizerId") Long organizerId);
 }

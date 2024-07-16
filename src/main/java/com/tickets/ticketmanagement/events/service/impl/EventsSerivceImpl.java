@@ -40,8 +40,11 @@ import com.tickets.ticketmanagement.users.dto.OrganizerDto;
 import com.tickets.ticketmanagement.users.entity.User;
 import com.tickets.ticketmanagement.users.service.UserService;
 
+import lombok.extern.java.Log;
+
 
 @Service
+@Log
 public class EventsSerivceImpl implements EventsService {
 
     private final EventsRepository eventsRepository;
@@ -336,8 +339,12 @@ public EventsResponseDto convertToDto(Events events) {
     }
 
     @Override
-public Page<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree, String name, Pageable pageable) {
+    public Page<EventsAllDto> filterEvents(String location, Long categoryId, Boolean isFree, String name, Pageable pageable) {
+    if ((location == null || location.isEmpty()) && categoryId == null && isFree == null && (name == null || name.isEmpty())) {
+        return findAllEvents(pageable);
+    }
     Page<Events> events = eventsRepository.filterEvents(location, categoryId, isFree, name, pageable);
+    log.info(events.toString());
     return events.map(this::EventConvertToDto);
 }
 
