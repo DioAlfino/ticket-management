@@ -23,8 +23,7 @@ public interface EventsRepository extends JpaRepository<Events, Long> {
        "(:location IS NULL OR e.location = :location) AND " +
        "(:categoryId IS NULL OR e.categoryId.id = :categoryId) AND " +
        "(:isFree IS NULL OR e.isFree = :isFree) AND " +
-        // "(:name IS NULL OR LOWER(e.name) LIKE LOWER(CONCAT('%', :name, '%')))"
-     "(:name IS NULL OR LOWER(e.name) LIKE LOWER(CONCAT('%', :name, '%')))"
+       "(:name IS NULL OR LOWER(e.name) LIKE %:name%)"
        )
 Page<Events> filterEvents(
         @Param("location") String location,
