@@ -103,14 +103,11 @@ public Transaction createTransaction(List<TicketSelectionDto> ticketSelectionDto
         discount = totalAmount * (referral.getDiscountAmount() / 100);
     }
 
-    double totalPoints = userPoints.stream().mapToDouble(Points::getPointsBalance).sum();
-    double finalAmount = totalAmount - discount - totalPoints;
-
     // Apply promotion discount if available
     Promotions activePromotion = promotionsRepository.findActivePromotionForEvent(now, eventId);
+    double promotionDiscount = 0;
     if (activePromotion != null) {
-        double promotionDiscount = activePromotion.getDiscount();
-        finalAmount -= promotionDiscount;
+        promotionDiscount = activePromotion.getDiscount();
         discount += promotionDiscount;
         
         activePromotion.setMaxUser(activePromotion.getMaxUser() - 1);
@@ -121,15 +118,22 @@ public Transaction createTransaction(List<TicketSelectionDto> ticketSelectionDto
         System.out.println("No active promotion found for event: " + eventId);
     }
 
+    double totalPoints = userPoints.stream().mapToDouble(Points::getPointsBalance).sum();
+    double remainingPoint = totalAmount - discount;
+    double pointsToUse = Math.min(remainingPoint, totalPoints);
+    double finalAmount = remainingPoint - pointsToUse;
+
     // Create negative points entry
-    Points negativePoints = new Points();
-    negativePoints.setUserId(currentUser);
-    negativePoints.setPointsBalance(-totalPoints);
-    negativePoints.setCreatedAt(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
-    pointsRepository.save(negativePoints);
+    if (pointsToUse > 0) {
+        Points negativePoints = new Points();
+        negativePoints.setUserId(currentUser);
+        negativePoints.setPointsBalance(-pointsToUse);
+        negativePoints.setCreatedAt(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+        pointsRepository.save(negativePoints);
+    }
 
     if (finalAmount < 0) {
-        throw new IllegalStateException("Final amount cannot be negative");
+        finalAmount = 0;
     }
 
     // Mark referral as used
@@ -143,7 +147,7 @@ public Transaction createTransaction(List<TicketSelectionDto> ticketSelectionDto
     transaction.setParticipant(currentUser);
     transaction.setDiscount(discount);
     transaction.setTotalAmount(totalAmount);
-    transaction.setPointsUsed(totalPoints);
+    transaction.setPointsUsed(pointsToUse);
     transaction.setFinalAmount(finalAmount);
     transaction.setCreatedAt(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
     transactionRepository.save(transaction);
