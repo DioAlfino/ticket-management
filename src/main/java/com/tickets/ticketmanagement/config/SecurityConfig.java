@@ -78,12 +78,15 @@ public class SecurityConfig {
                     oauth2.jwt((jwt) -> jwt.decoder(jwtDecoder()));
                     oauth2.bearerTokenResolver((request) -> {
                         Cookie[] cookies = request.getCookies();
+                        var authHeader = request.getHeader("Authorization");
                         if (cookies != null) {
                             for (Cookie cookie : cookies) {
                                 if ("sid".equals(cookie.getName())) {
                                     return cookie.getValue();
                                 }
                             }
+                        } else if (authHeader!= null && !authHeader.isEmpty()) {
+                            return authHeader.replace("Bearer ", "");
                         }
                         return null;
                     });
