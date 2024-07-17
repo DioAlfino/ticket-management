@@ -12,6 +12,8 @@ public class Response<T> {
     boolean success = false;
     private T data;
     private int page;
+    private int totalPages;
+    private long totalData;
 
     public Response(int statCode, String statusDesc) {
         statusCode = statCode;
@@ -56,11 +58,14 @@ public class Response<T> {
         return ResponseEntity.status(statusCode).body(response);
     }
 
-    public static <T> ResponseEntity<Response<T>> success(int statusCode, String message, T data,int page , int totalPages, long totalElements) {
+    public static <T> ResponseEntity<Response<T>> success(int statusCode, String message, T data, int page, int totalPages, long totalData) {
         Response<T> response = new Response<>(statusCode, message);
         response.setSuccess(true);
         response.setData(data);
         response.setPage(page);
+        response.setTotalPages(totalPages);
+        response.setTotalData(totalData);
         return ResponseEntity.status(statusCode).body(response);
     }
+    
 }
